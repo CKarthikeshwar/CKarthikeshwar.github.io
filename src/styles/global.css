@@ -1,17 +1,14 @@
 @import "tailwindcss";
 
-/*
-  Placeholder palette — structural inspiration from the reference screenshot,
-  distinct color identity. Swap these tokens to retheme the whole site.
-*/
 @theme {
-  --color-bg: #14120f;
-  --color-bg-elevated: #1d1a15;
-  --color-text-primary: #f2ede4;
-  --color-text-secondary: #a89c8a;
-  --color-text-muted: #6f6556;
-  --color-accent: #e0a458;
-  --color-border: #322c23;
+  --color-bg: #100e13;
+  --color-bg-elevated: #17131c;
+  --color-text-primary: #eeeaf2;
+  --color-text-secondary: #aaa1b5;
+  --color-text-muted: #706778;
+  --color-accent: #a78bfa;
+  --color-accent-light: #c4b5fd;
+  --color-border: #30283a;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
@@ -26,6 +23,17 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text-secondary);
   font-family: var(--font-sans);
+}
+
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  background-image:
+    radial-gradient(ellipse 640px 480px at 15% -5%, color-mix(in srgb, var(--color-accent) 16%, transparent), transparent),
+    radial-gradient(ellipse 560px 560px at 100% 100%, color-mix(in srgb, var(--color-accent-light) 12%, transparent), transparent);
+  filter: blur(80px);
 }
 
 .post-content > * + * {

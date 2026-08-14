@@ -4,7 +4,6 @@ import Hero from '../components/Hero.astro';
 import Experience from '../components/Experience.astro';
 import Projects from '../components/Projects.astro';
 import Skills from '../components/Skills.astro';
-import Education from '../components/Education.astro';
 ---
 
 <BaseLayout title="Chimirela Karthikeshwar">
@@ -12,9 +11,13 @@ import Education from '../components/Education.astro';
   <Experience />
   <Projects />
   <Skills />
-  <Education />
 
-  <footer class="mt-20 pb-12 font-mono text-xs text-text-muted">
-    <a href="/writing" class="hover:text-accent">Read my writing &rarr;</a>
+  <footer class="mt-20 pb-12">
+    <a
+      href="/writing"
+      class="inline-block rounded-full border border-accent px-6 py-3 font-mono text-xs uppercase tracking-widest text-accent transition-colors hover:bg-accent hover:text-bg"
+    >
+      Dump &rarr;
+    </a>
   </footer>
 </BaseLayout>

@@ -1,11 +1,10 @@
 ---
 const roles = [
   {
-    title: 'Formal Verification Intern · Emergence AI',
+    title: 'Summer Intern · Emergence AI',
     dates: 'May 2026 — Jul 2026',
     description:
       'Applied formal verification techniques (Lean 4 / Mathlib) to prove safety-critical correctness guarantees for a 2D physics engine — glitch-free collision resolution and anti-tunneling — using exact rational arithmetic and Separating-Axis-Theorem-based collision detection.',
-    tags: ['Lean 4', 'Mathlib', 'Formal Verification', 'Theorem Proving'],
   },
 ];
 ---
@@ -18,13 +17,6 @@ const roles = [
         <p class="font-mono text-xs text-text-muted">{role.dates}</p>
         <h3 class="mt-1 font-medium text-text-primary">{role.title}</h3>
         <p class="mt-2 leading-relaxed">{role.description}</p>
-        <ul class="mt-3 flex flex-wrap gap-2">
-          {role.tags.map((tag) => (
-            <li class="rounded-full border border-border px-3 py-1 font-mono text-xs text-accent">
-              {tag}
-            </li>
-          ))}
-        </ul>
       </li>
     ))}
   </ul>
