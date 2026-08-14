@@ -66,5 +66,9 @@ Clarified first:
 9. "Read my writing" as a button (`src/pages/index.astro` footer) → restyle from a plain text link into a visually distinct button: accent-colored border/fill, padding, rounded corners — no longer a barely-visible mono-text line.
 10. Subtle background (`src/layouts/BaseLayout.astro` + `src/styles/global.css`) → 1–2 large, heavily blurred radial-gradient shapes using `--color-accent` / `--color-accent-light` at low opacity (~10–15%), fixed behind the content, `pointer-events: none`, `aria-hidden`. No new dependencies, no animation.
 
+## V1.7
+Changes
+- Make it responsive for mobile and tablet, keep the image in centre when viewing it on a mobile 
+- in the desktop view the right side space is completely wasteed do something about it 
 
 
