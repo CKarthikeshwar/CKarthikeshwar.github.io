@@ -1,0 +1,30 @@
+---
+import Sidebar from '../components/Sidebar.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = 'Personal site of Chimirela Karthikeshwar.' } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen">
+    <Sidebar />
+    <main class="lg:ml-[360px] px-8 py-12 lg:px-16 lg:py-24">
+      <div class="max-w-2xl">
+        <slot />
+      </div>
+    </main>
+  </body>
+</html>

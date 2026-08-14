@@ -1,0 +1,20 @@
+---
+const groups = [
+  { label: 'Languages', items: ['Python', 'C', 'C++', 'Bash', 'Lean'] },
+  { label: 'Core CS', items: ['Data Structures & Algorithms', 'Operating Systems', 'ML Fundamentals', 'OOP'] },
+  { label: 'Math', items: ['Probability & Statistics', 'Discrete Math', 'Linear Algebra'] },
+  { label: 'Tools', items: ['Git', 'VS Code'] },
+];
+---
+
+<section id="skills" class="mt-20 scroll-mt-24">
+  <h2 class="font-mono text-xs uppercase tracking-widest text-text-muted">Skills</h2>
+  <dl class="mt-6 space-y-4">
+    {groups.map((group) => (
+      <div class="flex flex-col gap-1 sm:flex-row sm:gap-4">
+        <dt class="w-40 shrink-0 font-mono text-xs text-text-muted">{group.label}</dt>
+        <dd>{group.items.join(' · ')}</dd>
+      </div>
+    ))}
+  </dl>
+</section>
