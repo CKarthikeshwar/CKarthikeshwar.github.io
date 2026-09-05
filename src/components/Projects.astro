@@ -12,6 +12,13 @@ const projects = [
     description:
       "Built an end-to-end ML pipeline on real Bengaluru traffic incident data — feature engineering, CatBoost classifiers, and a spatio-temporal forecaster — feeding a decision layer that turns predictions into concrete actions: manpower allocation, barricade priority scoring, and diversion routing.",
   },
+  {
+    title: 'CoinFlow',
+    dates: 'Aug 2026 — Sept 2026',
+    description:
+      'An Android expense tracker built around one idea: you should record as little as possible. Reads bank/UPI SMS on-device, turns each transaction into a one-tap notification, and makes zero network requests by default.',
+    href: '/projects/coinflow',
+  },
 ];
 ---
 
@@ -21,7 +28,18 @@ const projects = [
     {projects.map((project) => (
       <li>
         <p class="font-mono text-xs text-text-muted">{project.dates}</p>
-        <h3 class="mt-1 font-medium text-text-primary">{project.title}</h3>
+        <h3 class="mt-1 font-medium text-text-primary">
+          {project.href ? (
+            <a href={project.href} class="inline-flex items-center gap-1.5 transition-colors hover:text-accent">
+              {project.title}
+              <svg viewBox="0 0 24 24" class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17 17 7M7 7h10v10" />
+              </svg>
+            </a>
+          ) : (
+            project.title
+          )}
+        </h3>
         <p class="mt-2 leading-relaxed">{project.description}</p>
       </li>
     ))}
