@@ -1,0 +1,64 @@
+---
+const projects = [
+  {
+    title: 'CoinFlow',
+    href: '/projects/coinflow',
+    description:
+      'An Android expense tracker built around one idea: you should record as little as possible. Reads bank/UPI SMS on-device, turns each transaction into a one-tap notification, and makes zero network requests by default.',
+  },
+  {
+    title: 'Adversarial Robustness: Transferability Analysis and Diffusion-Augmented Adversarial Training',
+    description:
+      'Compared adversarial transferability across 5 CNN architectures (ResNet18/34, VGG11/16, DenseNet121) and found gradient norm differences to be the dominant predictor of asymmetric transferability. Implemented PGD, TRADES, Incremental Adversarial Training, and AutoAttack on CIFAR-10, folding in diffusion-generated synthetic data and Fisher Information Matrix regularization.',
+  },
+  {
+    title: 'Event-Driven Traffic Congestion Intelligence System',
+    description:
+      'Built an end-to-end ML pipeline on real Bengaluru traffic incident data — feature engineering, CatBoost classifiers, and a spatio-temporal forecaster — feeding a decision layer that turns predictions into concrete actions: manpower allocation, barricade priority scoring, and diversion routing.',
+  },
+];
+---
+
+<section id="projects" class="t-fade-up mt-8 lg:mt-[52px]">
+  <button type="button" class="mono t-toggle" aria-expanded="true" aria-controls="projects-panel">
+    <span>$ ls projects/ --sort=date</span>
+    <span class="t-toggle-caret" aria-hidden="true">▸</span>
+  </button>
+  <div id="projects-panel" class="t-toggle-panel" style="max-height: none;">
+    <div class="flex flex-col gap-3.5 pt-2 pb-6 px-1 lg:gap-4">
+      {projects.map((project, i) => (
+        <div class="t-item-row">
+          <span class="t-item-num">{String(i + 1).padStart(2, '0')}</span>
+          <div class="t-glass px-5 py-6 sm:px-7 sm:py-7 lg:px-8 lg:py-7" style="background: rgba(255,255,255,0.035);">
+            <h3 class="t-hover-title" style="margin: 0; font-size: 16px; font-weight: 600;">
+              {project.href ? (
+                <a href={project.href} style="color: var(--t-text); display: inline-flex; align-items: center; gap: 7px;">
+                  {project.title}
+                  <svg
+                    class="t-arrow"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--t-accent)"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M7 17 17 7M7 7h10v10" />
+                  </svg>
+                </a>
+              ) : (
+                <span style="color: var(--t-text);">{project.title}</span>
+              )}
+            </h3>
+            <p style="margin: 10px 0 0; font-size: 14px; line-height: 1.65; color: var(--t-text2);">
+              {project.description}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

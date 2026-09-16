@@ -25,3 +25,9 @@ pnpm-debug.log*
 
 # design reference (not ours to redistribute)
 brittanychiang.com.png
+
+# design exploration (mockups, not part of the shipped site)
+design/
+
+# session transcript exports
+*.txt

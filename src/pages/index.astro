@@ -1,23 +1,178 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
-import Experience from '../components/Experience.astro';
-import Projects from '../components/Projects.astro';
-import Skills from '../components/Skills.astro';
+import HomeLayout from '../layouts/HomeLayout.astro';
+import HomeNav from '../components/home/HomeNav.astro';
+import HomeHero from '../components/home/HomeHero.astro';
+import HomeExperience from '../components/home/HomeExperience.astro';
+import HomeProjects from '../components/home/HomeProjects.astro';
+import HomeFooter from '../components/home/HomeFooter.astro';
 ---
 
-<BaseLayout title="Chimirela Karthikeshwar">
-  <Hero />
-  <Experience />
-  <Projects />
-  <Skills />
+<HomeLayout title="C.Karthikeshwar">
+  <div class="terminal">
+    <canvas id="constellation-canvas" aria-hidden="true" class="pointer-events-none absolute inset-0 h-full w-full"></canvas>
+    <div class="relative z-10 mx-auto max-w-[1280px] px-5 py-8 sm:px-8 sm:py-10 lg:px-[60px] lg:py-16">
+      <HomeNav />
+      <HomeHero />
+      <HomeExperience />
+      <HomeProjects />
+      <HomeFooter />
+    </div>
+  </div>
+</HomeLayout>
 
-  <footer class="mt-20 pb-12">
-    <a
-      href="/writing"
-      class="inline-block rounded-full border border-accent px-6 py-3 font-mono text-xs uppercase tracking-widest text-accent transition-colors hover:bg-accent hover:text-bg"
-    >
-      Dump &rarr;
-    </a>
-  </footer>
-</BaseLayout>
+<script>
+  // --- Collapsible "$ ls ..." sections -------------------------------
+  const toggles = document.querySelectorAll<HTMLButtonElement>('[aria-controls]');
+  toggles.forEach((btn) => {
+    const panel = document.getElementById(btn.getAttribute('aria-controls')!);
+    if (!panel) return;
+    // Switch from the no-JS "max-height: none" default to a measured px
+    // value so the collapse transition has something to animate from/to.
+    panel.style.maxHeight = `${panel.scrollHeight}px`;
+
+    btn.addEventListener('click', () => {
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!isOpen));
+      if (isOpen) {
+        panel.style.maxHeight = `${panel.scrollHeight}px`;
+        requestAnimationFrame(() => {
+          panel.style.maxHeight = '0px';
+          panel.dataset.collapsed = 'true';
+        });
+      } else {
+        panel.dataset.collapsed = 'false';
+        panel.style.maxHeight = `${panel.scrollHeight}px`;
+      }
+    });
+  });
+
+  window.addEventListener('resize', () => {
+    toggles.forEach((btn) => {
+      const panel = document.getElementById(btn.getAttribute('aria-controls')!);
+      if (!panel || panel.dataset.collapsed === 'true') return;
+      panel.style.maxHeight = `${panel.scrollHeight}px`;
+    });
+  });
+
+  // --- Scroll-spy nav pills -------------------------------------------
+  const sections = ['about', 'experience', 'projects', 'dump']
+    .map((id) => document.getElementById(id))
+    .filter((el): el is HTMLElement => el !== null);
+  const pills = document.querySelectorAll<HTMLAnchorElement>('[data-navpill]');
+
+  if (sections.length && pills.length && 'IntersectionObserver' in window) {
+    const setActive = (id: string) => {
+      pills.forEach((pill) => {
+        pill.setAttribute('aria-current', pill.dataset.navpill === id ? 'true' : 'false');
+      });
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      },
+      { rootMargin: '-45% 0px -50% 0px', threshold: 0 }
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  // --- Particle constellation background ------------------------------
+  const canvas = document.getElementById('constellation-canvas') as HTMLCanvasElement | null;
+  const wrapper = canvas?.parentElement ?? null;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (canvas && wrapper && !prefersReducedMotion) {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      const accentRGB = '110,231,183'; // Matrix Mint accent
+
+      const measure = () => wrapper.getBoundingClientRect();
+      let rect = measure();
+      let w = (canvas.width = rect.width);
+      let h = (canvas.height = rect.height);
+
+      type Point = { x: number; y: number; vx: number; vy: number };
+      const makePt = (bias: number): Point => ({
+        x: w * Math.random() ** bias,
+        y: h * Math.random() ** bias,
+        vx: (Math.random() - 0.5) * 0.16,
+        vy: (Math.random() - 0.5) * 0.16,
+      });
+      // Scale particle count with page area so density feels consistent
+      // from a narrow phone to a tall desktop page, within sane bounds.
+      const countFor = (width: number, height: number) => {
+        const area = width * height;
+        return Math.max(60, Math.min(160, Math.round(area / 9000)));
+      };
+      const genPts = (): Point[] => {
+        const total = countFor(w, h);
+        const concentrated = Math.round(total * 0.38);
+        const base = total - concentrated;
+        return [
+          ...Array.from({ length: base }, () => makePt(1)),
+          ...Array.from({ length: concentrated }, () => makePt(2.6)),
+        ];
+      };
+      let pts = genPts();
+
+      const mouse = { x: -9999, y: -9999 };
+      const onMove = (e: MouseEvent) => {
+        const r = measure();
+        mouse.x = e.clientX - r.left;
+        mouse.y = e.clientY - r.top;
+      };
+      let resizeTimer: ReturnType<typeof setTimeout>;
+      const onResize = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          const r = measure();
+          if (!r.width) return;
+          w = canvas.width = r.width;
+          h = canvas.height = r.height;
+          pts = genPts();
+        }, 150);
+      };
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('resize', onResize);
+
+      let raf: number;
+      const tick = () => {
+        ctx.clearRect(0, 0, w, h);
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+          for (let j = i + 1; j < pts.length; j++) {
+            const q = pts[j];
+            const d = Math.hypot(p.x - q.x, p.y - q.y);
+            if (d < 140) {
+              ctx.strokeStyle = `rgba(${accentRGB},${0.2 * (1 - d / 140)})`;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(q.x, q.y);
+              ctx.stroke();
+            }
+          }
+          const dMouse = Math.hypot(p.x - mouse.x, p.y - mouse.y);
+          const near = dMouse < 150;
+          ctx.fillStyle = `rgba(${accentRGB},${near ? 0.9 : 0.5})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, near ? 2.4 : 1.5, 0, Math.PI * 2);
+          ctx.fill();
+          if (near) {
+            ctx.strokeStyle = `rgba(${accentRGB},${0.35 * (1 - dMouse / 150)})`;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.stroke();
+          }
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      tick();
+    }
+  }
+</script>

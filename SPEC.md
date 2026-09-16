@@ -71,4 +71,53 @@ Changes
 - Make it responsive for mobile and tablet, keep the image in centre when viewing it on a mobile 
 - in the desktop view the right side space is completely wasteed do something about it 
 
+## V2
+Goal
+    Full redesign of the homepage only — replace the sidebar-based minimal layout with a
+    self-contained "Glass Terminal" design (CS/terminal-flavored, dark glass panels, drifting
+    particle background). Explored first as canvas mockups (see `design/README.md` and
+    `design/homepage/DirectionE.dc.html`), then ported into the real site. `/dump` (formerly
+    `/writing`) and `/projects/*` keep the original sidebar layout and violet palette —
+    unaffected by this redesign.
+
+Changes
+    - New color palette on the homepage only: "Matrix Mint" — bg `#090d0b`, text `#e8f5ee`,
+      text2 `#9fb8ac`, muted `#62796e`, accent `#6ee7b7`, accentSoft `#a7f3d0`,
+      border `rgba(110,231,183,0.16)`. Scoped via CSS custom properties on a `.terminal`
+      wrapper so it can't leak into the rest of the site.
+    - Body font switched from Inter to IBM Plex Sans on the homepage only (Inter flagged as an
+      overused/generic face during a design review; JetBrains Mono kept as-is — already used
+      site-wide and fits the terminal identity).
+    - Layout: top bar (`user@ck:~$` prompt + horizontally-scrollable nav pills + social icons)
+      instead of the fixed left sidebar. Terminal boot-sequence hero (`$ whoami --full` types
+      out → name reveals → `$ cat role.txt` types out → role line fades in) with the photo
+      beside it on desktop, stacked above it on mobile.
+    - Experience and Projects are click-to-collapse sections (`$ ls experience/`,
+      `$ ls projects/ --sort=date`), each entry numbered (01, 02, 03…) in a column outside the
+      card instead of a date line. Project order: CoinFlow, then the adversarial robustness
+      project, then the traffic congestion project.
+    - Skills section removed — no chip wall, no replacement (not enough content to justify a
+      dedicated section right now).
+    - Canvas-based particle constellation background: drifts on its own, brightens/connects
+      toward the mouse cursor, density weighted toward the top-left with even coverage
+      elsewhere. Sizes itself off the actual page content, not the viewport, so it can't get
+      out of sync with the responsive layout.
+    - Footer changed from a "Dump →" button to a terminal-style `$ open ./dump` line.
+    - Blog route renamed site-wide: `/writing` → `/dump` (matches the homepage's own "dump"
+      terminology; the old route now 404s).
+    - Card hover: lift + soft shadow, no 3D tilt.
+    - Fully responsive — not just a desktop/mobile snapshot pair. Hero name font-size scales
+      off the actual hero panel's rendered width (CSS container queries) rather than the
+      viewport, specifically to avoid a clipping bug where viewport-based scaling drifted out
+      of sync with the layout right at the point it switches from stacked to side-by-side.
+
+Implementation notes
+    - New: `src/layouts/HomeLayout.astro`, `src/components/home/*`, `src/styles/terminal.css`,
+      `src/pages/dump/*`. Rewritten: `src/pages/index.astro`.
+    - Removed (superseded, no longer referenced anywhere): `src/components/Hero.astro`,
+      `Experience.astro`, `Projects.astro`, `Skills.astro`, `src/pages/writing/*`.
+    - Untouched: `src/layouts/BaseLayout.astro`, `src/components/Sidebar.astro` (only the nav
+      link's href/label updated for the `/dump` rename) — still used by `/dump` and
+      `/projects/*`.
+    - Full design-system reference: `DESIGN_SYSTEM.md`.
 

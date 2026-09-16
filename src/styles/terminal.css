@@ -1,0 +1,269 @@
+/* Homepage-only "Glass Terminal" theme. Scoped to .terminal so it never
+   leaks into the sidebar-based layout used by /dump and /projects/*. */
+
+.terminal {
+  --t-bg: #090d0b;
+  --t-text: #e8f5ee;
+  --t-text2: #9fb8ac;
+  --t-muted: #62796e;
+  --t-accent: #6ee7b7;
+  --t-accent-soft: #a7f3d0;
+  --t-border: rgba(110, 231, 183, 0.16);
+
+  position: relative;
+  overflow: hidden;
+  background: var(--t-bg);
+  color: var(--t-text2);
+  font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+.terminal a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.terminal .mono {
+  font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+#about,
+#experience,
+#projects,
+#dump {
+  scroll-margin-top: 24px;
+}
+
+@keyframes t-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+@keyframes t-type1 {
+  from { width: 0; }
+  to { width: 13ch; }
+}
+@keyframes t-type2 {
+  from { width: 0; }
+  to { width: 12ch; }
+}
+@keyframes t-fade-in {
+  to { opacity: 1; }
+}
+@keyframes t-reveal-name {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes t-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.t-cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  vertical-align: -0.15em;
+  background: var(--t-accent);
+  animation: t-blink 1s step-end infinite;
+}
+
+.t-type1 {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 13ch;
+  color: var(--t-text2);
+  animation: t-type1 1s steps(13) both;
+}
+
+.t-type2 {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 12ch;
+  opacity: 0;
+  color: var(--t-text2);
+  animation:
+    t-type2 0.9s steps(12) 2.8s forwards,
+    t-fade-in 0.05s 2.8s forwards;
+}
+
+.t-name-reveal {
+  animation: t-reveal-name 1.7s cubic-bezier(0.65, 0, 0.35, 1) 1.1s both;
+}
+
+.t-fade-up {
+  animation: t-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.t-role-line {
+  opacity: 0;
+  animation: t-fade-up 0.6s ease 3.7s forwards;
+}
+
+/* Prompt rows ("$ whoami --full") */
+.t-prompt-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0;
+  color: var(--t-muted);
+}
+
+/* Nav */
+.t-nav-pills {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--t-border);
+  backdrop-filter: blur(10px);
+}
+.t-nav-pills::-webkit-scrollbar {
+  display: none;
+}
+.t-navpill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex: none;
+  color: var(--t-text2);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.t-navpill:hover {
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-1px);
+}
+.t-navpill[aria-current='true'] {
+  background: var(--t-accent);
+  color: var(--t-bg);
+}
+
+/* Social icons */
+.t-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--t-border);
+  color: var(--t-text2);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+}
+.t-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.32);
+  transform: translateY(-2px);
+  filter: brightness(1.6);
+}
+@media (min-width: 1024px) {
+  .t-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* Glass panels */
+.t-glass {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--t-border);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+  container-type: inline-size;
+}
+.t-glass:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.t-glass:has(.t-hover-title):hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.5);
+}
+.t-hover-title {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  transform-origin: left center;
+}
+.t-glass:hover .t-hover-title {
+  transform: scale(1.06);
+}
+
+/* Numbered items — number sits outside the card, like a margin note */
+.t-item-row {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  column-gap: 8px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .t-item-row {
+    grid-template-columns: 48px 1fr;
+    column-gap: 14px;
+  }
+}
+.t-item-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--t-muted);
+  font-size: 18px;
+  padding-top: 3px;
+}
+@media (min-width: 1024px) {
+  .t-item-num {
+    font-size: 28px;
+  }
+}
+
+/* Toggle rows ("$ ls experience/") */
+.t-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 13px;
+  color: var(--t-muted);
+  cursor: pointer;
+  transition: filter 0.2s ease;
+}
+.t-toggle:hover {
+  filter: brightness(1.5);
+}
+.t-toggle-caret {
+  display: inline-block;
+  font-size: 10px;
+  transform: rotate(90deg);
+  transition: transform 0.25s ease;
+}
+.t-toggle[aria-expanded='false'] .t-toggle-caret {
+  transform: rotate(0deg);
+}
+.t-toggle-panel {
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.65, 0, 0.35, 1), opacity 0.3s ease;
+}
+.t-toggle-panel[data-collapsed='true'] {
+  opacity: 0;
+}
+
+/* Project link arrow */
+.t-arrow {
+  transition: transform 0.18s ease;
+}
+.t-glass:hover .t-arrow {
+  transform: translate(3px, -3px);
+}
