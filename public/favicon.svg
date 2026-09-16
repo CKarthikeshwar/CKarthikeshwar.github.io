@@ -1,52 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <style>
-    .steam {
-      fill: none;
-      stroke: #cdd6e0;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      opacity: 0;
+    .eye {
+      transform-box: fill-box;
       transform-origin: center;
-      animation: rise 2.4s ease-in-out infinite;
+      animation: blink 5s ease-in-out infinite;
     }
-    .steam.s2 { animation-delay: 0.6s; }
-    @keyframes rise {
-      0%   { opacity: 0; transform: translateY(0) scaleY(0.85); }
-      25%  { opacity: 0.9; }
-      70%  { opacity: 0.5; }
-      100% { opacity: 0; transform: translateY(-8px) scaleY(1.05); }
-    }
-    .pep {
-      animation: sizzle 1.8s ease-in-out infinite;
-      transform-origin: center;
-    }
-    .pep.p2 { animation-delay: 0.3s; }
-    .pep.p3 { animation-delay: 0.6s; }
-    .pep.p4 { animation-delay: 0.9s; }
-    @keyframes sizzle {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.18); }
+    .eye.right { animation-delay: 0.12s; }
+    @keyframes blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
     }
     @media (prefers-reduced-motion: reduce) {
-      .steam { animation: none; opacity: 0.6; }
-      .pep { animation: none; }
+      .eye { animation: none; }
     }
   </style>
 
-  <!-- steam -->
-  <path class="steam s1" d="M26 10c-3 3-3 5 0 8s3 5 0 8" />
-  <path class="steam s2" d="M38 10c-3 3-3 5 0 8s3 5 0 8" />
+  <!-- ears -->
+  <path d="M16 22 L20 4 L28 24 Z" fill="#7d828c" stroke="#4a4d55" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M48 22 L44 4 L36 24 Z" fill="#7d828c" stroke="#4a4d55" stroke-width="1.5" stroke-linejoin="round"/>
 
-  <!-- pizza slice -->
-  <path d="M32 56 L11 21c6-4 13-6 21-6s15 2 21 6Z" fill="#F6C94D" stroke="#C9902E" stroke-width="2" stroke-linejoin="round"/>
+  <!-- head -->
+  <path d="M18 24 L46 24 L50 34 L32 58 L14 34 Z" fill="#7d828c" stroke="#4a4d55" stroke-width="1.5" stroke-linejoin="round"/>
 
-  <!-- crust -->
-  <path d="M11 21c6-4 13-6 21-6s15 2 21 6" fill="none" stroke="#E3A857" stroke-width="7" stroke-linecap="round"/>
-  <path d="M11 21c6-4 13-6 21-6s15 2 21 6" fill="none" stroke="#C9902E" stroke-width="2" stroke-linecap="round"/>
+  <!-- muzzle -->
+  <path d="M32 33 L41 42 L32 55 L23 42 Z" fill="#eceef0"/>
 
-  <!-- pepperoni -->
-  <circle class="pep p1" cx="27" cy="30" r="3.4" fill="#C6432E"/>
-  <circle class="pep p2" cx="38" cy="29" r="3.4" fill="#C6432E"/>
-  <circle class="pep p3" cx="32" cy="39" r="3.4" fill="#C6432E"/>
-  <circle class="pep p4" cx="24" cy="41" r="3" fill="#C6432E"/>
+  <!-- eyes -->
+  <ellipse class="eye left" cx="24" cy="34" rx="3.2" ry="2.6" fill="#e0a458"/>
+  <ellipse class="eye right" cx="40" cy="34" rx="3.2" ry="2.6" fill="#e0a458"/>
+
+  <!-- nose -->
+  <path d="M32 48 L28.5 52.5 L35.5 52.5 Z" fill="#26262b"/>
 </svg>
