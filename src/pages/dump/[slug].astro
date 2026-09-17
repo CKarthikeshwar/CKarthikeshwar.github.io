@@ -15,10 +15,10 @@ const { Content } = await render(post);
 ---
 
 <DumpLayout title={`${post.data.title} — Chimirela Karthikeshwar`}>
-  <a href="/dump" class="mono t-toggle" style="margin: 0 0 28px;">
+  <a href="/dump" class="mono t-toggle t-fade-up" style="margin: 0 0 28px;">
     <span>&larr; $ cd dump/</span>
   </a>
-  <article>
+  <article class="t-glass t-fade-up px-6 py-8 sm:px-9 sm:py-10" style="background: rgba(255,255,255,0.035);">
     <p class="mono" style="margin: 0; font-size: 11px; color: var(--t-muted);">
       {post.data.date.toLocaleDateString('en-US', {
         year: 'numeric',
@@ -26,7 +26,7 @@ const { Content } = await render(post);
         day: 'numeric',
       })}
     </p>
-    <h1 style="margin: 8px 0 0; font-size: 28px; font-weight: 700; color: var(--t-text);">
+    <h1 style="margin: 10px 0 0; font-size: 28px; font-weight: 700; color: var(--t-text);">
       {post.data.title}
     </h1>
     {post.data.tags.length > 0 && (
@@ -36,7 +36,7 @@ const { Content } = await render(post);
         ))}
       </div>
     )}
-    <div class="t-post-content" style="margin-top: 32px; color: var(--t-text2);">
+    <div class="t-post-content" style="margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--t-border); color: var(--t-text2);">
       <Content />
     </div>
   </article>

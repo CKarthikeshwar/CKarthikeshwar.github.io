@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import '../styles/terminal.css';
+import ConstellationBackground from '../components/ConstellationBackground.astro';
 
 interface Props {
   title: string;
@@ -30,7 +31,8 @@ const {
   </head>
   <body class="m-0">
     <div class="terminal min-h-screen">
-      <div class="mx-auto max-w-2xl px-5 py-10 sm:px-8 sm:py-14 lg:max-w-3xl lg:px-10 lg:py-20">
+      <ConstellationBackground />
+      <div class="relative z-10 mx-auto max-w-2xl px-5 py-10 sm:px-8 sm:py-14 lg:max-w-3xl lg:px-10 lg:py-20">
         <slot />
       </div>
     </div>

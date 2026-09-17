@@ -8,17 +8,19 @@ const posts = (await getCollection('blog')).sort(
 ---
 
 <DumpLayout title="Dump — Chimirela Karthikeshwar">
-  <a href="/" class="mono t-toggle" style="margin: 0 0 28px;">
+  <a href="/" class="mono t-toggle t-fade-up" style="margin: 0 0 28px;">
     <span>$ cd ~</span>
   </a>
-  <p class="mono" style="margin: 0 0 20px; font-size: 13px; color: var(--t-muted);">$ ls dump/</p>
+  <p class="mono t-fade-up" style="margin: 0 0 20px; font-size: 13px; color: var(--t-muted);">
+    $ ls dump/ <span style="color: var(--t-text2);">// {posts.length} {posts.length === 1 ? 'post' : 'posts'}</span>
+  </p>
 
   {posts.length === 0 ? (
     <p style="color: var(--t-text2);">Nothing here yet.</p>
   ) : (
     <div class="flex flex-col gap-3.5">
       {posts.map((post, i) => (
-        <div class="t-item-row">
+        <div class="t-item-row t-fade-up" style={`animation-delay: ${Math.min(i * 0.08, 0.4)}s;`}>
           <span class="t-item-num">{String(i + 1).padStart(2, '0')}</span>
           <a
             href={`/dump/${post.id}`}

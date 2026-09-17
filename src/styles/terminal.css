@@ -1,5 +1,5 @@
-/* Homepage-only "Glass Terminal" theme. Scoped to .terminal so it never
-   leaks into the sidebar-based layout used by /dump and /projects/*. */
+/* "Glass Terminal" theme, scoped to .terminal. Shared by the homepage
+   and /dump (DumpLayout.astro). */
 
 .terminal {
   --t-bg: #090d0b;

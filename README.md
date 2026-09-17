@@ -1,43 +1,36 @@
-# Astro Starter Kit: Minimal
+# CKarthikeshwar.github.io
 
-```sh
-npm create astro@latest -- --template minimal
+**Live: [ckarthikeshwar.github.io](https://ckarthikeshwar.github.io)**
+
+Personal site of Chimirela Karthikeshwar — a Mathematics & Computing student at IISc Bengaluru. Built with [Astro](https://astro.build) and [Tailwind CSS](https://tailwindcss.com), deployed to GitHub Pages.
+
+The homepage runs on a custom "Glass Terminal" theme: a terminal boot sequence, glass/blur panels, and a mouse-reactive particle constellation background, with each section framed as a shell command (`$ ls experience/`, `$ ls projects/`, ...).
+
+## Structure
+
+```
+src/
+├── pages/
+│   ├── index.astro     # Homepage — About / Experience / Projects
+│   ├── dump/           # Writing — post list and individual posts
+│   ├── projects/       # Standalone project pages (e.g. CoinFlow)
+│   └── v1.astro        # Frozen pre-redesign homepage snapshot
+├── components/          # Astro components, incl. shared home/ pieces
+├── layouts/             # Page layouts (Home, Dump)
+├── styles/              # Global styles + the Glass Terminal theme
+└── content/blog/        # Markdown posts for /dump
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Deployment is handled by `.github/workflows/deploy.yml`, which builds and publishes to GitHub Pages on every push to `main`.
 
-## 🚀 Project Structure
+## Archive
 
-Inside of your Astro project, you'll see the following folders and files:
+The homepage as it looked before the "Glass Terminal" (V2) redesign is frozen at
+[`/v1`](https://ckarthikeshwar.github.io/v1) — a self-contained snapshot, not
+linked from the live site's navigation.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+## License
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+The code is MIT licensed (see [LICENSE](LICENSE)). This doesn't extend to the
+personal content — resume/experience details, project write-ups, blog posts,
+and photos — which remain not licensed for reuse.
