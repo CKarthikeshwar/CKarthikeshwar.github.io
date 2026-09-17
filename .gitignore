@@ -31,3 +31,6 @@ design/
 
 # session transcript exports
 *.txt
+
+# personal Claude Code settings (not for sharing)
+.claude/settings.local.json
