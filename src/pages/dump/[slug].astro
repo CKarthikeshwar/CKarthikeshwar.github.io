@@ -1,6 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import DumpLayout from '../../layouts/DumpLayout.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
@@ -14,30 +14,30 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<BaseLayout title={`${post.data.title} — Chimirela Karthikeshwar`}>
-  <a href="/dump" class="font-mono text-xs uppercase tracking-widest text-text-muted hover:text-accent">
-    &larr; Dump
+<DumpLayout title={`${post.data.title} — Chimirela Karthikeshwar`}>
+  <a href="/dump" class="mono t-toggle" style="margin: 0 0 28px;">
+    <span>&larr; $ cd dump/</span>
   </a>
-  <article class="mt-6">
-    <p class="font-mono text-xs text-text-muted">
+  <article>
+    <p class="mono" style="margin: 0; font-size: 11px; color: var(--t-muted);">
       {post.data.date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
       })}
     </p>
-    <h1 class="mt-1 text-2xl font-semibold text-text-primary">{post.data.title}</h1>
+    <h1 style="margin: 8px 0 0; font-size: 28px; font-weight: 700; color: var(--t-text);">
+      {post.data.title}
+    </h1>
     {post.data.tags.length > 0 && (
-      <ul class="mt-3 flex flex-wrap gap-2">
+      <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px;">
         {post.data.tags.map((tag) => (
-          <li class="rounded-full border border-border px-3 py-1 font-mono text-xs text-accent">
-            {tag}
-          </li>
+          <span class="t-chip">{tag}</span>
         ))}
-      </ul>
+      </div>
     )}
-    <div class="post-content mt-6">
+    <div class="t-post-content" style="margin-top: 32px; color: var(--t-text2);">
       <Content />
     </div>
   </article>
-</BaseLayout>
+</DumpLayout>

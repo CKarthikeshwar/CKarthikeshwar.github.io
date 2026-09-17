@@ -1,6 +1,7 @@
 ---
 const roles = [
   {
+    dates: 'MAY 2026 — JUL 2026',
     title: 'Summer Intern · Emergence AI',
     description:
       'Applied formal verification techniques (Lean 4 / Mathlib) to prove safety-critical correctness guarantees for a 2D physics engine — glitch-free collision resolution and anti-tunneling — using exact rational arithmetic and Separating-Axis-Theorem-based collision detection.',
@@ -10,7 +11,7 @@ const roles = [
 
 <section id="experience" class="t-fade-up mt-9 lg:mt-[60px]">
   <button type="button" class="mono t-toggle" aria-expanded="true" aria-controls="experience-panel">
-    <span>$ ls experience/</span>
+    <span>$ ls experience/ --sort=date</span>
     <span class="t-toggle-caret" aria-hidden="true">▸</span>
   </button>
   <div id="experience-panel" class="t-toggle-panel" style="max-height: none;">
@@ -19,7 +20,8 @@ const roles = [
         <div class="t-item-row">
           <span class="t-item-num">{String(i + 1).padStart(2, '0')}</span>
           <div class="t-glass px-5 py-6 sm:px-7 sm:py-7 lg:px-8 lg:py-7" style="background: rgba(255,255,255,0.035);">
-            <h3 class="t-hover-title" style="margin: 0; font-size: 17px; font-weight: 600; color: var(--t-text);">
+            <p class="mono" style="margin: 0; font-size: 10.5px; color: var(--t-muted);">{role.dates}</p>
+            <h3 class="t-hover-title" style="margin: 8px 0 0; font-size: 17px; font-weight: 600; color: var(--t-text);">
               {role.title}
             </h3>
             <p style="margin: 10px 0 0; font-size: 14px; line-height: 1.65; color: var(--t-text2);">

@@ -1,39 +1,50 @@
 ---
 import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import DumpLayout from '../../layouts/DumpLayout.astro';
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
 ---
 
-<BaseLayout title="Dump — Chimirela Karthikeshwar">
-  <h1 class="font-mono text-xs uppercase tracking-widest text-text-muted">Dump</h1>
-  <ul class="mt-6 space-y-8">
-    {posts.map((post) => (
-      <li>
-        <a href={`/dump/${post.id}`} class="group">
-          <p class="font-mono text-xs text-text-muted">
-            {post.data.date.toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </p>
-          <h2 class="mt-1 font-medium text-text-primary group-hover:text-accent">
-            {post.data.title}
-          </h2>
-          {post.data.tags.length > 0 && (
-            <ul class="mt-2 flex flex-wrap gap-2">
-              {post.data.tags.map((tag) => (
-                <li class="rounded-full border border-border px-3 py-1 font-mono text-xs text-accent">
-                  {tag}
-                </li>
-              ))}
-            </ul>
-          )}
-        </a>
-      </li>
-    ))}
-  </ul>
-</BaseLayout>
+<DumpLayout title="Dump — Chimirela Karthikeshwar">
+  <a href="/" class="mono t-toggle" style="margin: 0 0 28px;">
+    <span>$ cd ~</span>
+  </a>
+  <p class="mono" style="margin: 0 0 20px; font-size: 13px; color: var(--t-muted);">$ ls dump/</p>
+
+  {posts.length === 0 ? (
+    <p style="color: var(--t-text2);">Nothing here yet.</p>
+  ) : (
+    <div class="flex flex-col gap-3.5">
+      {posts.map((post, i) => (
+        <div class="t-item-row">
+          <span class="t-item-num">{String(i + 1).padStart(2, '0')}</span>
+          <a
+            href={`/dump/${post.id}`}
+            class="t-glass px-5 py-6 sm:px-7 sm:py-7"
+            style="display: block; background: rgba(255,255,255,0.035); color: var(--t-text2);"
+          >
+            <p class="mono" style="margin: 0; font-size: 10.5px; color: var(--t-muted);">
+              {post.data.date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })}
+            </p>
+            <h2 class="t-hover-title" style="margin: 8px 0 0; font-size: 17px; font-weight: 600; color: var(--t-text);">
+              {post.data.title}
+            </h2>
+            {post.data.tags.length > 0 && (
+              <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                {post.data.tags.map((tag) => (
+                  <span class="t-chip">{tag}</span>
+                ))}
+              </div>
+            )}
+          </a>
+        </div>
+      ))}
+    </div>
+  )}
+</DumpLayout>
