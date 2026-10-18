@@ -1,0 +1,8 @@
+---
+import LegalPage from '../../../components/thinnava/LegalPage.astro';
+import { Content, getHeadings } from '../../../legal/thinnava/privacy.md';
+---
+
+<LegalPage doc="privacy" title="Privacy policy" headings={getHeadings()}>
+  <Content />
+</LegalPage>

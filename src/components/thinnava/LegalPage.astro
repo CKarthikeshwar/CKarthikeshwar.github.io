@@ -1,0 +1,114 @@
+---
+// Thinnava's privacy policy and terms (linked from the Thinnava app and its Google sign-in screen).
+// A calm reading page: serif body for long reading, an "On this page" list, Thinnava's cobalt as the only accent.
+// The text is Markdown kept in the Thinnava repo (docs/legal/*.md) and copied to src/legal/thinnava/.
+interface Props { doc: 'privacy' | 'terms'; title: string; headings: { depth: number; slug: string; text: string }[] }
+const { doc, title, headings } = Astro.props;
+const sections = headings.filter((h) => h.depth === 2);
+const base = '/projects/thinnava';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · Thinnava</title>
+    <meta name="description" content={`${title} for Thinnava, a friends-first food diary.`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Fredoka:wght@600&family=Nunito+Sans:opsz,wght@6..12,600;6..12,800&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="bar">
+      <div class="bar-in">
+        <a class="brand" href={`${base}/privacy`}>
+          <img src="/thinnava/cat-mark.webp" alt="" width="30" height="30" />
+          <span class="name">Thinnava</span>
+          <span class="sep" aria-hidden="true">/</span>
+          <span class="kind">Legal</span>
+        </a>
+        <nav class="tabs" aria-label="Legal pages">
+          <a href={`${base}/privacy`} aria-current={doc === 'privacy' ? 'page' : undefined}>Privacy policy</a>
+          <a href={`${base}/terms`} aria-current={doc === 'terms' ? 'page' : undefined}>Terms of use</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="layout">
+      {sections.length ? (
+        <aside class="toc">
+          <details open>
+            <summary>On this page</summary>
+            <ol>{sections.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
+          </details>
+        </aside>
+      ) : <div />}
+      <article class="doc">
+        <slot />
+        <p class="end">Questions about this page? Write to the contact address above.</p>
+      </article>
+    </div>
+
+    <footer class="foot">
+      Thinnava is a student project from IISc, Bengaluru · <a href="/">C.Karthikeshwar</a>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --paper: #FBFCFF; --ink: #10183A; --ink-soft: #3D4670; --muted: #5C668C;
+    --rule: #E1E6F6; --accent: #2350D9; --accent-strong: #16348F; --accent-wash: #EEF2FF;
+    --serif: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --sans: 'Nunito Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  html, body { margin: 0; background: var(--paper); color: var(--ink); }
+  body { font-family: var(--serif); font-size: 18px; line-height: 1.65; overflow-x: hidden; }
+
+  .bar { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--paper) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--rule); }
+  .bar-in { max-width: 1080px; margin: 0 auto; padding: 12px max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left)); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--ink); }
+  .brand img { width: 30px; height: 30px; object-fit: contain; }
+  .brand .name { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 600; font-size: 21px; color: var(--accent-strong); }
+  .brand .sep { color: var(--rule); font-family: var(--sans); }
+  .brand .kind { font-family: var(--sans); font-weight: 800; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .tabs { display: flex; gap: 18px; font-family: var(--sans); font-size: 14.5px; font-weight: 800; }
+  .tabs a { color: var(--muted); text-decoration: none; padding: 6px 0; border-bottom: 2px solid transparent; }
+  .tabs a[aria-current='page'] { color: var(--ink); border-bottom-color: var(--accent); }
+  .tabs a:hover { color: var(--ink); }
+
+  .layout { max-width: 1080px; margin: 0 auto; padding: 40px max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left)); display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 56px; }
+  .toc { position: sticky; top: 92px; align-self: start; font-family: var(--sans); font-size: 14px; }
+  .toc summary { font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); cursor: pointer; list-style: none; margin-bottom: 12px; }
+  .toc summary::-webkit-details-marker { display: none; }
+  .toc ol { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 1px solid var(--rule); display: flex; flex-direction: column; gap: 9px; }
+  .toc a { color: var(--ink-soft); text-decoration: none; font-weight: 600; line-height: 1.35; display: block; }
+  .toc a:hover { color: var(--accent); }
+
+  .doc { max-width: 68ch; min-width: 0; overflow-wrap: anywhere; }
+  .doc h1 { font-family: 'Fredoka', system-ui, sans-serif; font-weight: 600; font-size: clamp(32px, 5vw, 44px); line-height: 1.1; margin: 0; color: var(--ink); text-wrap: balance; }
+  .doc h1 + p { font-family: var(--sans); font-size: 13.5px; font-weight: 600; color: var(--muted); margin: 12px 0 32px; }
+  .doc h1 + p em { font-style: normal; }
+  .doc h2 { font-family: var(--sans); font-weight: 800; font-size: 20px; line-height: 1.3; margin: 40px 0 10px; color: var(--ink); padding-top: 22px; border-top: 1px solid var(--rule); }
+  .doc p { margin: 0 0 16px; color: var(--ink-soft); }
+  .doc ul, .doc ol { margin: 0 0 16px; padding-left: 24px; color: var(--ink-soft); display: flex; flex-direction: column; gap: 10px; }
+  .doc li::marker { color: var(--accent); font-family: var(--sans); font-weight: 800; }
+  .doc strong { color: var(--ink); font-weight: 600; }
+  .doc a { color: var(--accent); }
+  .doc .end { margin-top: 40px; padding: 16px 18px; background: var(--accent-wash); border-radius: 12px; font-family: var(--sans); font-size: 14.5px; font-weight: 600; color: var(--ink-soft); }
+
+  .foot { max-width: 1080px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-right)) 40px max(16px, env(safe-area-inset-left)); font-family: var(--sans); font-size: 13.5px; font-weight: 600; color: var(--muted); border-top: 1px solid var(--rule); }
+  .foot a { color: var(--accent-strong); }
+  a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 24px; }
+    .toc { position: static; background: var(--accent-wash); border-radius: 12px; padding: 14px 16px; }
+    .toc summary { margin-bottom: 0; }
+    .toc details[open] summary { margin-bottom: 12px; }
+    body { font-size: 17px; }
+  }
+</style>

@@ -1,0 +1,8 @@
+---
+import LegalPage from '../../../components/thinnava/LegalPage.astro';
+import { Content, getHeadings } from '../../../legal/thinnava/terms.md';
+---
+
+<LegalPage doc="terms" title="Terms of use" headings={getHeadings()}>
+  <Content />
+</LegalPage>
