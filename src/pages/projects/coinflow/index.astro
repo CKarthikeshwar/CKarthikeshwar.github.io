@@ -1,0 +1,587 @@
+---
+import CoinFlowLayout from '../../../layouts/CoinFlowLayout.astro';
+
+const APK = 'https://github.com/CKarthikeshwar/coinflow/releases/latest/download/coinflow.apk';
+const REPO = 'https://github.com/CKarthikeshwar/coinflow';
+---
+
+<CoinFlowLayout
+  title="CoinFlow: the expense tracker that reads your bank SMS"
+  description="CoinFlow is an Android expense tracker that turns bank and UPI SMS into one-tap notifications. Everything runs on your phone, with no account and no backend."
+>
+  <!-- ================= HERO ================= -->
+  <section class="cf-hero">
+    <div class="cf-wrap">
+      <div class="cf-hero__top">
+        <h1 class="cf-hero__title">
+          <span>Your bank already texts you every payment.</span>
+          <span class="dim">CoinFlow turns the texts into your ledger.</span>
+        </h1>
+        <div class="cf-hero__side">
+          <p class="cf-hero__sub">
+            An Android expense tracker that reads bank and UPI SMS as they arrive and turns each
+            payment into a one-tap notification. <b>It all happens on your phone.</b> No account,
+            no login, no server.
+          </p>
+          <div class="cf-hero__ctas">
+            <a class="cf-btn cf-btn--primary" href={APK}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" /></svg>
+              Download APK
+            </a>
+            <a class="cf-btn cf-btn--ghost" href="/projects/coinflow/install">How to install</a>
+          </div>
+          <p class="cf-hero__meta">
+            <span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5" /><path d="M11 18h2" /></svg>Android only</span>
+            <span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6" /></svg>Free and open source</span>
+            <span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>Stays on your phone</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Signature: a sample SMS parsed into a notification. Works without JS (first sample shown). -->
+      <div class="cf-stage" id="how" data-stage>
+        <div class="cf-stage__bar">
+          <p class="cf-stage__label"><b>Try it.</b> Pick a sample message and watch CoinFlow read it.</p>
+          <div class="cf-samples" role="group" aria-label="Sample messages" data-samples hidden>
+            <button type="button" data-i="0" aria-pressed="true">UPI payment</button>
+            <button type="button" data-i="1" aria-pressed="false">Card, new shop</button>
+            <button type="button" data-i="2" aria-pressed="false">Salary</button>
+            <button type="button" data-i="3" aria-pressed="false">OTP</button>
+          </div>
+        </div>
+
+        <div class="cf-stage__grid">
+          <div class="cf-pane">
+            <p class="cf-pane__h"><span class="step">The SMS</span><span>Messages</span></p>
+            <div class="cf-sms__from">
+              <span class="cf-sms__av"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V10m14 11V10M3 10l9-6 9 6M9 21v-6h6v6" /></svg></span>
+              <div>
+                <p class="cf-sms__sender" data-sender>AX-HDFCBK</p>
+                <p class="cf-sms__time" data-time>Now</p>
+              </div>
+            </div>
+            <p class="cf-sms__bubble" data-bubble>
+              <span class="cf-tok" data-k="dir">Sent</span> <span class="cf-tok" data-k="amt">Rs.450.00</span> from HDFC Bank A/C *4521 to <span class="cf-tok" data-k="acct">swiggy@paytm</span> on 21/08/26 via <span class="cf-tok" data-k="method">UPI</span>. Ref 523418765123. Not you? SMS BLOCK UPI to your bank.
+            </p>
+            <p class="cf-sms__foot">Sample message. Real SMS bodies are read in memory and never saved.</p>
+          </div>
+
+          <div class="cf-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5" /></svg></div>
+
+          <div class="cf-pane">
+            <p class="cf-pane__h"><span class="step">What CoinFlow reads</span><span>On-device</span></p>
+            <ul class="cf-fields" data-fields>
+              <li class="cf-field is-on" data-k="amt"><span class="cf-field__k">Amount</span><span class="cf-field__v num">₹450.00</span></li>
+              <li class="cf-field is-on" data-k="dir"><span class="cf-field__k">Direction</span><span class="cf-field__v">Money out</span></li>
+              <li class="cf-field is-on" data-k="acct"><span class="cf-field__k">Account</span><span class="cf-field__v">swiggy@paytm</span></li>
+              <li class="cf-field is-on" data-k="method"><span class="cf-field__k">Method</span><span class="cf-field__v">UPI</span></li>
+              <li class="cf-field is-on" data-k="cat"><span class="cf-field__k">Category</span><span class="cf-field__v">Food, remembered</span></li>
+            </ul>
+            <p class="cf-gate" data-gate>
+              <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+              <span>Known bank sender, a real payment, not seen before. You confirmed this account last time, so its category comes back.</span>
+            </p>
+          </div>
+
+          <div class="cf-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5" /></svg></div>
+
+          <div class="cf-pane">
+            <p class="cf-pane__h"><span class="step">Your notification</span><span>Lock screen</span></p>
+            <div class="cf-notif-area" data-out aria-live="polite">
+              <div class="cf-notif">
+                <div class="cf-notif__head">
+                  <span class="cf-notif__app"><img src="/coinflow/icon-192.png" alt="" width="20" height="20" /></span>
+                  <span class="cf-notif__name">CoinFlow</span><span>· now</span>
+                </div>
+                <p class="cf-notif__title">₹450 debited</p>
+                <p class="cf-notif__body">swiggy@paytm · UPI</p>
+                <div class="cf-notif__acts">
+                  <button type="button" class="is-main" data-act="save">Save</button>
+                  <button type="button" data-act="add">Add</button>
+                  <button type="button" class="is-quiet" data-act="discard">Discard</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="cf-stage__foot">
+          <span>Tap a button on the notification to see what it does.</span>
+          <span>Banks and amounts here are made-up samples.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= THE LOOP ================= -->
+  <section class="cf-section cf-section--rule">
+    <div class="cf-wrap">
+      <div class="cf-loop__head cf-rise">
+        <h2 class="cf-h2">Record as little as possible. <span class="dim">That's the whole idea.</span></h2>
+        <p class="cf-lede">
+          Most expense apps fail the same way: you stop typing things in by Wednesday. CoinFlow does
+          the typing. Your part is one tap, or one quick look when it sees an account for the first time.
+        </p>
+      </div>
+
+      <div class="cf-loop__phones">
+        <figure class="cf-loop__item cf-rise">
+          <div class="cf-shot"><img src="/coinflow/screens/notification.webp" alt="Lock screen with two CoinFlow notifications: ₹450 debited at Swiggy with Save, Add and Discard buttons, and ₹1,299 debited at a new account with Add and Discard." width="720" height="1558" loading="lazy" decoding="async" /></div>
+          <figcaption class="cf-loop__cap">
+            <span class="cf-loop__n">1</span>
+            <h3>The SMS becomes a notification</h3>
+            <p>Amount, account and method are read from the text. For an account you've confirmed before, Save is one tap and you never open the app.</p>
+          </figcaption>
+        </figure>
+        <figure class="cf-loop__item cf-rise">
+          <div class="cf-shot"><img src="/coinflow/screens/confirm-sheet.webp" alt="Review transaction sheet with ₹450 pre-filled, Expense selected, payment method UPI and account swiggy@paytm." width="720" height="1558" loading="lazy" decoding="async" /></div>
+          <figcaption class="cf-loop__cap">
+            <span class="cf-loop__n">2</span>
+            <h3>New account? One short sheet</h3>
+            <p>Everything the SMS said is already filled in. Pick a category once and CoinFlow remembers it for that account.</p>
+          </figcaption>
+        </figure>
+        <figure class="cf-loop__item cf-rise">
+          <div class="cf-shot"><img src="/coinflow/screens/home.webp" alt="CoinFlow home screen: total balance ₹1,44,280, income and spending for the month, and recent transactions." width="720" height="1558" loading="lazy" decoding="async" /></div>
+          <figcaption class="cf-loop__cap">
+            <span class="cf-loop__n">3</span>
+            <h3>The ledger keeps itself</h3>
+            <p>Balance, income and spending update the moment you tap. Paid in cash? The + button adds it by hand.</p>
+          </figcaption>
+        </figure>
+      </div>
+      <p class="cf-note" style="margin-top:40px">Screens are renders of the CoinFlow design with sample data.</p>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="cf-section cf-section--rule" id="features">
+    <div class="cf-wrap">
+      <h2 class="cf-h2 cf-rise">Everything a ledger needs. <span class="dim">None of the typing.</span></h2>
+
+      <div class="cf-spread cf-rise">
+        <div class="cf-spread__art">
+          <div class="cf-shot"><img src="/coinflow/screens/review-queue.webp" alt="Review Queue listing five detected transactions waiting to be confirmed." width="720" height="1558" loading="lazy" decoding="async" /></div>
+        </div>
+        <div class="cf-spread__copy">
+          <h3>Missed the notification? Nothing is lost.</h3>
+          <p>Every payment CoinFlow detects waits in the Review Queue until you confirm or dismiss it. Nothing goes into your ledger until you say so.</p>
+          <ul class="cf-points">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span><b>Save all</b> clears the queue in one go, using each account's remembered category or your default.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>If another SMS app swallowed the alert, CoinFlow re-checks the <b>last 48 hours</b> of your inbox whenever you open it.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>A <b>9:30 PM nudge</b> each night reminds you to add anything you paid in cash.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cf-spread cf-spread--flip cf-rise">
+        <div class="cf-spread__art">
+          <div class="cf-shot"><img src="/coinflow/screens/analytics.webp" alt="Analytics screen: ₹22,520 left this month, 20% of income, mean and median daily spend, and a category breakdown." width="720" height="1558" loading="lazy" decoding="async" /></div>
+        </div>
+        <div class="cf-spread__copy">
+          <h3>See where it went, without a spreadsheet.</h3>
+          <p>How much of this month's income is left, your average and median day against last month, a category breakdown, a day-by-day chart and the biggest expenses.</p>
+          <ul class="cf-points">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>Switch between <b>month and week</b>, and step back through earlier periods.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>Income gets its own breakdown too: salary, freelance, refunds, gifts.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>Split a bill and only <b>your share</b> counts as your spending.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cf-spread cf-rise">
+        <div class="cf-spread__art">
+          <div class="cf-mock" aria-hidden="true">
+            <div class="cf-sheet">
+              <div class="cf-sheet__grab"></div>
+              <p class="cf-sheet__t">Split ₹1,200</p>
+              <p class="cf-sheet__s">Dinner</p>
+              <div class="cf-dots"><i></i><i class="on"></i></div>
+              <div class="cf-seg"><span class="on">₹</span><span>%</span></div>
+              <div class="cf-share"><span class="cf-av">Y</span><span class="cf-share__n">You</span><span class="cf-share__a">₹300</span></div>
+              <div class="cf-share"><span class="cf-av">R</span><span class="cf-share__n">Rahul<small>98•••• 4521</small></span><span class="cf-share__a">₹300</span></div>
+              <div class="cf-share"><span class="cf-av">A</span><span class="cf-share__n">Ananya<small>99•••• 1087</small></span><span class="cf-share__a">₹300</span></div>
+              <div class="cf-share"><span class="cf-av">D</span><span class="cf-share__n">Dev<small>90•••• 3316</small></span><span class="cf-share__a">₹300</span></div>
+              <p class="cf-sheet__rem"><span>Equal split</span><span>Remaining ₹0</span></p>
+              <p class="cf-sheet__btn">Send requests</p>
+            </div>
+            <div class="cf-notif">
+              <div class="cf-notif__head">
+                <span class="cf-notif__app"><img src="/coinflow/icon-192.png" alt="" width="20" height="20" /></span>
+                <span class="cf-notif__name">CoinFlow</span><span>· on Rahul's phone</span>
+              </div>
+              <p class="cf-notif__title">Ravi requested ₹300</p>
+              <p class="cf-notif__body">for Dinner · CoinFlow split</p>
+              <div class="cf-notif__acts"><button type="button" class="is-main" tabindex="-1">Accept</button><button type="button" class="is-quiet" tabindex="-1">Reject</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="cf-spread__copy">
+          <h3>Paid for everyone? Split it and ask by SMS.</h3>
+          <p>Pick people from your contacts or type a number, split equally or by custom amounts, and CoinFlow texts each person a request from your phone. No app account needed on either side.</p>
+          <ul class="cf-points">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>Friends on CoinFlow get the request as a notification with <b>Accept</b> and <b>Reject</b>.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>When they pay you back, CoinFlow <b>suggests which share</b> the payment settles. You confirm it.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>One page for <b>Owed to you</b>, <b>You owe</b> and incoming requests.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cf-spread cf-spread--flip cf-rise">
+        <div class="cf-spread__art">
+          <div class="cf-launcher" aria-hidden="true">
+            <p class="cf-launcher__clock">9:41<small>Thursday, 21 August</small></p>
+            <div class="cf-w cf-w--4x2">
+              <p class="cf-w__month">August</p>
+              <p class="cf-w__bal">₹22,520</p>
+              <div class="cf-w__cols"><div>Income<b>₹1,15,000</b></div><div>Spent<b>₹92,480</b></div></div>
+            </div>
+            <div class="cf-w cf-w--4x2">
+              <p class="cf-w__head">To review <span class="cf-w__pill">3</span></p>
+              <p class="cf-w__row"><span>swiggy@paytm</span><b>₹450</b><svg class="ic" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7v10H7" /></svg></p>
+              <p class="cf-w__row"><span>AMAZON PAY</span><b>₹1,299</b><svg class="ic" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7v10H7" /></svg></p>
+            </div>
+            <div class="cf-w cf-w--add"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>Add transaction</div>
+            <div class="cf-w cf-w--app"><img src="/coinflow/icon-192.png" alt="" width="56" height="56" /></div>
+          </div>
+        </div>
+        <div class="cf-spread__copy">
+          <h3>Your month, on the home screen.</h3>
+          <p>Three widgets: a money summary for the month, the transactions waiting for review, and an Add button that opens straight to the add sheet.</p>
+          <ul class="cf-points">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>Tap a waiting transaction to <b>confirm it</b> right there.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span><b>Hide amounts</b> shows •••• instead of figures, for a phone other people see.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span>Long-press your home screen, open Widgets and find CoinFlow.</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="cf-more cf-rise">
+        <h3 class="cf-more__h">And the everyday parts</h3>
+        <ul class="cf-list" aria-label="Recording">
+          <li><span class="cf-list__tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></span><span class="cf-list__t"><b>Manual entry</b>Cash, or anything an SMS can't catch, through the same sheet from a blank start.</span></li>
+          <li><span class="cf-list__tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4l3 2" /><circle cx="12" cy="12" r="9" /></svg></span><span class="cf-list__t"><b>Account memory, not guesswork</b>No AI, no keyword guessing. An account gets the category and note you picked last time.</span></li>
+          <li><span class="cf-list__tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4Z" /><path d="M3 12l9 4 9-4M3 17l9 4 9-4" /></svg></span><span class="cf-list__t"><b>Your own categories</b>Defaults for spending and income. Rename, reorder, add or delete them.</span></li>
+        </ul>
+        <ul class="cf-list" aria-label="Managing">
+          <li><span class="cf-list__tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg></span><span class="cf-list__t"><b>Search and filters</b>Find a payment by note, account or description; filter by category, method or date.</span></li>
+          <li><span class="cf-list__tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4" /><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" /></svg></span><span class="cf-list__t"><b>Export or wipe</b>Everything out as JSON or CSV, or reset the app to a fresh install.</span></li>
+          <li><span class="cf-list__tile"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.7 21a2 2 0 0 1-3.4 0" /></svg></span><span class="cf-list__t"><b>Quiet by design</b>One notification per payment. Promos and OTPs are ignored.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRIVACY ================= -->
+  <section class="cf-section cf-privacy" id="privacy">
+    <div class="cf-wrap">
+      <div class="cf-privacy__grid">
+        <div class="cf-rise">
+          <h2 class="cf-privacy__big">Nothing you spend leaves your phone.</h2>
+          <ul class="cf-facts">
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span><b>No account, no login, no backend.</b> Every SMS check, notification and chart is worked out on the phone itself.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span><b>The SMS text itself is never stored.</b> Only the fields read from it (amount, direction, account, method) are saved.</span></li>
+            <li><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg><span><b>Crash reports are off unless you turn them on.</b> Even then they're scrubbed of anything that looks like money, an account or a UPI ID.</span></li>
+          </ul>
+        </div>
+        <div class="cf-perms cf-rise">
+          <p class="cf-perms__h">Every permission it asks for, and why</p>
+          <p class="cf-perms__sub">Android shows each of these as its own prompt.</p>
+          <div class="cf-perm">
+            <span class="cf-perm__n">SMS</span><span class="cf-pill cf-pill--req">Needed</span>
+            <p class="cf-perm__why">To notice bank and UPI alerts as they arrive, and to re-check the last 48 hours if one slipped past.</p>
+          </div>
+          <div class="cf-perm">
+            <span class="cf-perm__n">Notifications</span><span class="cf-pill cf-pill--opt">Recommended</span>
+            <p class="cf-perm__why">For the one-tap cards. Without it, payments still collect in the Review Queue.</p>
+          </div>
+          <div class="cf-perm">
+            <span class="cf-perm__n">Send SMS</span><span class="cf-pill cf-pill--opt">Only for splits</span>
+            <p class="cf-perm__why">Asked the first time you send a split request. Say no and CoinFlow opens Messages with the text ready instead.</p>
+          </div>
+          <div class="cf-perm">
+            <span class="cf-perm__n">Contacts</span><span class="cf-pill cf-pill--opt">Optional</span>
+            <p class="cf-perm__why">Only to pick people for a split. You can always type a number instead.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INSTALL SUMMARY ================= -->
+  <section class="cf-section" id="install">
+    <div class="cf-wrap">
+      <div class="cf-install__grid">
+        <div class="cf-rise">
+          <h2 class="cf-h2">Not on the Play Store. <span class="dim">On purpose.</span></h2>
+          <p class="cf-lede">
+            Google Play only lets a short list of apps read your SMS, mostly default messaging apps.
+            Expense trackers aren't on it. On Play, CoinFlow would have to ship without the one thing
+            it's for.
+          </p>
+          <p class="cf-lede">
+            So you install the APK file directly. Android double-checks that you really mean to, and
+            the first install takes about five minutes. After that it's a normal app.
+          </p>
+          <div class="cf-hero__ctas" style="margin-top:32px">
+            <a class="cf-btn cf-btn--primary" href="/projects/coinflow/install">Read the install guide</a>
+            <a class="cf-btn cf-btn--ghost" href={APK}>Download APK</a>
+          </div>
+        </div>
+        <div class="cf-rise">
+          <ol class="cf-steps">
+            <li>
+              <div>
+                <h3>Download the APK</h3>
+                <p>From the GitHub release. If Chrome asks whether to keep the file, keep it.</p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3>Pause Play Protect scanning</h3>
+                <p>Play Protect blocks apps from outside the Play Store that ask for SMS access. Turn its scan off in the Play Store for the install.</p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3>Let your browser install apps</h3>
+                <p>Android asks once whether Chrome, or your file manager, may install apps. Allow it, then tap Install.</p>
+              </div>
+            </li>
+            <li>
+              <div>
+                <h3>Allow restricted settings, then SMS</h3>
+                <p>On Android 13 and later the SMS switch starts greyed out. Unlock it from CoinFlow's App info screen, then allow SMS.</p>
+              </div>
+            </li>
+          </ol>
+          <div class="cf-callout">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>
+            <p><b>Updates don't arrive by themselves.</b> Download the new APK from the same link and install it over the old one. Your data stays.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BUILT WITH ================= -->
+  <section class="cf-section cf-section--rule" id="built">
+    <div class="cf-wrap">
+      <h2 class="cf-h2 cf-rise">For developers: <span class="dim">how it's built.</span></h2>
+      <p class="cf-lede cf-rise">Open source on <a class="cf-textlink" href={REPO}>GitHub</a>. Each release APK is built and signed by GitHub Actions from the tagged source.</p>
+      <div class="cf-built__grid">
+        <dl class="cf-stack cf-rise">
+          <div><dt>Framework</dt><dd>Expo SDK 57 · React Native 0.86 · React 19 · <code>TypeScript</code></dd></div>
+          <div><dt>Navigation</dt><dd><code>expo-router</code>, file-based</dd></div>
+          <div><dt>Database</dt><dd><code>expo-sqlite</code> through <code>Drizzle ORM</code>, money stored as whole paise</dd></div>
+          <div><dt>SMS</dt><dd>A custom Kotlin module with a broadcast receiver and a headless JS task</dd></div>
+          <div><dt>Widgets</dt><dd>Native Android app widgets fed by a snapshot from the JS side</dd></div>
+          <div><dt>Charts</dt><dd><code>d3-shape</code> and <code>d3-scale</code> drawn with <code>react-native-svg</code></dd></div>
+          <div><dt>Testing</dt><dd>Jest on the parser and data layer, Maestro flows on real phones</dd></div>
+        </dl>
+        <ol class="cf-pipe cf-rise" aria-label="From SMS to transaction">
+          <li><b>SMS arrives</b><span><code>SmsReceiver.kt</code> fires, even when the app is fully closed.</span></li>
+          <li><b>A headless JS task starts</b><span>No UI, just enough JavaScript to run the ingest step.</span></li>
+          <li><b>Three checks</b><span>A known bank sender? A real payment, not an OTP or offer? Not already seen?</span></li>
+          <li><b>A suggestion is saved</b><span>With the account's remembered category attached, if it has one.</span></li>
+          <li><b>Notification posted</b><span>Known account: Save, Add, Discard. New account: Add, Discard.</span></li>
+          <li><b>Every screen updates</b><span>Live queries, so nothing in the app has to refetch by hand.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CLOSE ================= -->
+  <section class="cf-close">
+    <div class="cf-wrap">
+      <img src="/coinflow/icon-192.png" alt="" width="76" height="76" />
+      <h2 class="cf-h2">Stop typing in your expenses.</h2>
+      <p class="cf-lede">Free, open source, and it all stays on your phone. Android only.</p>
+      <div class="cf-hero__ctas">
+        <a class="cf-btn cf-btn--primary" href={APK}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" /></svg>
+          Download APK
+        </a>
+        <a class="cf-btn cf-btn--ghost" href="/projects/coinflow/install">How to install</a>
+      </div>
+    </div>
+  </section>
+</CoinFlowLayout>
+
+<script>
+  type Field = [key: string, label: string, value: string, num?: boolean];
+  type Sample = {
+    sender: string;
+    time: string;
+    sms: string; // tokens as {key|text}
+    fields: Field[];
+    gate: string;
+    ok: boolean;
+    notif?: { title: string; body: string; acts: ('save' | 'add' | 'discard')[] };
+    saved?: { title: string; sub: string; amt: string; income?: boolean };
+    added?: string;
+  };
+
+  const SAMPLES: Sample[] = [
+    {
+      sender: 'AX-HDFCBK', time: 'Now',
+      sms: '{dir|Sent} {amt|Rs.450.00} from HDFC Bank A/C *4521 to {acct|swiggy@paytm} on 21/08/26 via {method|UPI}. Ref 523418765123. Not you? SMS BLOCK UPI to your bank.',
+      fields: [['amt', 'Amount', '₹450.00', true], ['dir', 'Direction', 'Money out'], ['acct', 'Account', 'swiggy@paytm'], ['method', 'Method', 'UPI'], ['cat', 'Category', 'Food, remembered']],
+      gate: 'Known bank sender, a real payment, not seen before. You confirmed this account last time, so its category comes back.',
+      ok: true,
+      notif: { title: '₹450 debited', body: 'swiggy@paytm · UPI', acts: ['save', 'add', 'discard'] },
+      saved: { title: 'Swiggy', sub: 'Food · saved from the notification', amt: '−₹450' },
+    },
+    {
+      sender: 'VM-ICICIT', time: '2 min ago',
+      sms: '{amt|INR 1,299.00} {dir|spent} using ICICI Bank {method|Card} XX8812 on 21-Aug-26 on {acct|AMAZON PAY}. Avl Limit: INR 48,201.00. If not you, call your bank.',
+      fields: [['amt', 'Amount', '₹1,299.00', true], ['dir', 'Direction', 'Money out'], ['acct', 'Account', 'AMAZON PAY'], ['method', 'Method', 'Card'], ['cat', 'Category', 'New account, you pick']],
+      gate: 'A real payment, but CoinFlow has never seen this account. No guessing: you pick the category once.',
+      ok: true,
+      notif: { title: '₹1,299 debited', body: 'AMAZON PAY · Card', acts: ['add', 'discard'] },
+      added: 'The review sheet opens with amount, account and method filled in. Pick a category once and next time it’s one tap.',
+    },
+    {
+      sender: 'AD-SBIBNK', time: '9:02 AM',
+      sms: 'Your A/c XX7710 is {dir|credited} by {amt|Rs.1,15,000.00} on 01-09-26 by {method|NEFT} from {acct|ACME TECH PVT LTD}. -SBI',
+      fields: [['amt', 'Amount', '₹1,15,000.00', true], ['dir', 'Direction', 'Money in'], ['acct', 'Account', 'ACME TECH PVT LTD'], ['method', 'Method', 'Bank transfer'], ['cat', 'Category', 'Salary, remembered']],
+      gate: 'Money in counts as income. This employer was confirmed last month, so it’s filed under Salary again.',
+      ok: true,
+      notif: { title: '₹1,15,000 credited', body: 'ACME TECH PVT LTD · Bank transfer', acts: ['save', 'add', 'discard'] },
+      saved: { title: 'Salary', sub: 'Salary · saved from the notification', amt: '+₹1,15,000', income: true },
+    },
+    {
+      sender: 'AX-HDFCBK', time: '1 min ago',
+      sms: '{otp|542318} is your OTP for a payment of {amt|Rs.2,500.00} at FLIPKART. Valid for 5 mins. Do not share it with anyone.',
+      fields: [['amt', 'Amount', '₹2,500.00', true], ['otp', 'Type', 'One-time password'], ['dir', 'Direction', '—'], ['acct', 'Account', '—'], ['cat', 'Result', 'Ignored']],
+      gate: 'Not a payment yet, just a code. OTPs, offers and balance alerts are dropped before anything is written.',
+      ok: false,
+    },
+  ];
+
+  const ICON = '/coinflow/icon-192.png';
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const stage = document.querySelector<HTMLElement>('[data-stage]');
+
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+
+  if (stage) {
+    const picker = stage.querySelector<HTMLElement>('[data-samples]')!;
+    const bubble = stage.querySelector<HTMLElement>('[data-bubble]')!;
+    const sender = stage.querySelector<HTMLElement>('[data-sender]')!;
+    const time = stage.querySelector<HTMLElement>('[data-time]')!;
+    const fieldsEl = stage.querySelector<HTMLElement>('[data-fields]')!;
+    const gate = stage.querySelector<HTMLElement>('[data-gate]')!;
+    const out = stage.querySelector<HTMLElement>('[data-out]')!;
+    picker.hidden = false;
+
+    let run = 0;
+    let current = 0;
+    const timers: number[] = [];
+    const later = (fn: () => void, ms: number) => timers.push(window.setTimeout(fn, ms));
+    const clear = () => { timers.forEach(clearTimeout); timers.length = 0; };
+
+    const CHECK = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+    const SLASH = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/></svg>';
+    const REPLAY = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>';
+    const LABEL = { save: 'Save', add: 'Add', discard: 'Discard' } as const;
+
+    function notifHTML(s: Sample) {
+      const n = s.notif!;
+      const acts = n.acts.map((a) => `<button type="button" data-act="${a}" class="${a === 'save' ? 'is-main' : a === 'discard' ? 'is-quiet' : ''}">${LABEL[a]}</button>`).join('');
+      return `<div class="cf-notif${reduce ? '' : ' is-enter'}"><div class="cf-notif__head"><span class="cf-notif__app"><img src="${ICON}" alt="" width="20" height="20"></span><span class="cf-notif__name">CoinFlow</span><span>· now</span></div><p class="cf-notif__title">${esc(n.title)}</p><p class="cf-notif__body">${esc(n.body)}</p><div class="cf-notif__acts">${acts}</div></div>`;
+    }
+
+    function render(i: number, animate: boolean) {
+      clear();
+      const id = ++run;
+      current = i;
+      const s = SAMPLES[i];
+      picker.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.i) === i)));
+      sender.textContent = s.sender;
+      time.textContent = s.time;
+      bubble.innerHTML = esc(s.sms).replace(/\{(\w+)\|([^}]+)\}/g, (_m, k, t) => `<span class="cf-tok" data-k="${k}">${t}</span>`);
+      fieldsEl.innerHTML = s.fields.map(([k, l, v, n]) => `<li class="cf-field" data-k="${k}"><span class="cf-field__k">${l}</span><span class="cf-field__v${n ? ' num' : ''}">${esc(v)}</span></li>`).join('');
+      gate.innerHTML = `${s.ok ? CHECK : SLASH}<span>${esc(s.gate)}</span>`;
+      gate.style.opacity = '0';
+      out.innerHTML = '';
+
+      const fields = [...fieldsEl.querySelectorAll<HTMLElement>('.cf-field')];
+      const showOut = () => {
+        if (id !== run) return;
+        gate.style.opacity = '1';
+        out.innerHTML = s.ok
+          ? notifHTML(s)
+          : `<div class="cf-ignored${reduce ? '' : ' cf-notif is-enter'}" style="background:none;box-shadow:none;padding:18px">${SLASH}<div><b>No notification</b>Nothing is posted and nothing is saved.</div></div>`;
+      };
+
+      if (!animate || reduce) {
+        fields.forEach((f) => f.classList.add('is-on'));
+        showOut();
+        return;
+      }
+      gate.style.transition = 'opacity .5s';
+      fields.forEach((f, n) => {
+        later(() => {
+          if (id !== run) return;
+          bubble.querySelectorAll('.cf-tok.is-lit').forEach((t) => t.classList.remove('is-lit'));
+          bubble.querySelectorAll(`.cf-tok[data-k="${f.dataset.k}"]`).forEach((t) => t.classList.add('is-lit'));
+          f.classList.add('is-on');
+        }, 350 + n * 380);
+      });
+      later(() => bubble.querySelectorAll('.cf-tok.is-lit').forEach((t) => t.classList.remove('is-lit')), 350 + fields.length * 380 + 200);
+      later(showOut, 350 + fields.length * 380 + 300);
+    }
+
+    // Hover a field to see which words it came from.
+    fieldsEl.addEventListener('pointerover', (e) => {
+      const f = (e.target as HTMLElement).closest<HTMLElement>('.cf-field');
+      bubble.querySelectorAll('.cf-tok').forEach((t) => t.classList.toggle('is-lit', !!f && (t as HTMLElement).dataset.k === f.dataset.k));
+    });
+    fieldsEl.addEventListener('pointerleave', () => bubble.querySelectorAll('.cf-tok.is-lit').forEach((t) => t.classList.remove('is-lit')));
+
+    picker.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-i]');
+      if (b) render(Number(b.dataset.i), true);
+    });
+
+    out.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button[data-act], button[data-replay]');
+      if (!b) return;
+      if (b.dataset.replay !== undefined) { render(current, true); return; }
+      const s = SAMPLES[current];
+      const act = b.dataset.act;
+      let html = '';
+      if (act === 'save' && s.saved) {
+        const tile = s.saved.income
+          ? '<svg class="ic" viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>'
+          : '<svg class="ic" viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>';
+        html = `<div class="cf-result"><span class="cf-result__tile${s.saved.income ? ' is-inc' : ''}">${tile}</span><span class="cf-result__main"><span class="cf-result__t">${esc(s.saved.title)}</span><span class="cf-result__s">${esc(s.saved.sub)}</span></span><span class="cf-result__amt">${esc(s.saved.amt)}</span></div><p class="cf-note" style="margin-top:4px">Written to your ledger. The app never opened.</p>`;
+      } else if (act === 'add') {
+        html = `<div class="cf-ignored" style="border-style:solid">${CHECK}<div><b>Review sheet opens</b>${esc(s.added ?? 'The review sheet opens pre-filled, so you can change the category, note or date before saving.')}</div></div>`;
+      } else {
+        html = `<div class="cf-ignored">${SLASH}<div><b>Discarded</b>Nothing was saved. It won’t come back.</div></div>`;
+      }
+      out.innerHTML = html + `<button type="button" class="cf-replay" data-replay>${REPLAY}Replay this message</button>`;
+      out.querySelector<HTMLElement>('.cf-replay')?.focus({ preventScroll: true });
+    });
+
+    // Play the first sample once the stage scrolls into view.
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((en) => en.isIntersecting)) { io.disconnect(); render(0, true); }
+    }, { threshold: 0.35 });
+    io.observe(stage);
+  }
+
+  // One staggered entrance for content below the fold.
+  document.documentElement.classList.add('js');
+  const rise = [...document.querySelectorAll<HTMLElement>('.cf-rise')];
+  if ('IntersectionObserver' in window) {
+    const ro = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('is-in'); ro.unobserve(en.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    rise.forEach((el) => ro.observe(el));
+  } else {
+    rise.forEach((el) => el.classList.add('is-in'));
+  }
+</script>

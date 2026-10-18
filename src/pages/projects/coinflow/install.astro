@@ -1,0 +1,343 @@
+---
+import CoinFlowLayout from '../../../layouts/CoinFlowLayout.astro';
+
+const APK = 'https://github.com/CKarthikeshwar/coinflow/releases/latest/download/coinflow.apk';
+const REPO = 'https://github.com/CKarthikeshwar/coinflow';
+
+const toc = [
+  ['why', 'Why an APK'],
+  ['download', 'Download'],
+  ['play-protect', 'Play Protect'],
+  ['unknown-apps', 'Allow the install'],
+  ['sms', 'SMS permission'],
+  ['background', 'Keep it running'],
+  ['updates', 'Updates'],
+  ['problems', 'Problems and fixes'],
+];
+---
+
+<CoinFlowLayout
+  title="Install CoinFlow: Play Protect, SMS permission and fixes"
+  description="How to install the CoinFlow APK on Android: why Play Protect blocks it, how to pause it, how to unlock the restricted SMS permission, and fixes for common problems."
+  current="install"
+>
+  <header class="ig-head">
+    <div class="cf-wrap">
+      <p class="ig-crumb"><a href="/projects/coinflow">CoinFlow</a> / Install guide</p>
+      <h1 class="ig-title">Installing CoinFlow from an APK</h1>
+      <p class="ig-intro">
+        CoinFlow isn't on the Play Store, so you install it from a file. Android puts a few
+        safety checks in the way of any app that reads SMS and doesn't come from Play. They're
+        there for good reasons, and this page explains each one, <b>why it appears and how to get
+        past it</b>, in the order you'll meet them.
+      </p>
+      <div class="ig-glance">
+        <span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>About 5 minutes</span>
+        <span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5" /><path d="M11 18h2" /></svg>Android phone with a SIM that gets bank SMS</span>
+        <span><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" /></svg>Wi-Fi recommended for the download</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="cf-wrap">
+    <div class="ig-body">
+      <nav class="ig-toc" aria-label="On this page">
+        <p>On this page</p>
+        <ol>
+          {toc.map(([id, label], i) => (
+            <li><a href={`#${id}`} data-toc={id}><span>{i + 1}</span>{label}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <article class="ig-main">
+        <!-- 1 -->
+        <section class="ig-sec" id="why">
+          <p class="ig-sec__n">1</p>
+          <h2>Why it's an APK and not a Play Store app</h2>
+          <p>
+            Google Play only allows apps to read SMS if they fit a short list of uses, mainly being
+            your default messaging app. A personal expense tracker isn't on that list. On the Play Store
+            CoinFlow would be rejected, or it would have to ship without reading SMS, which is the whole point of it.
+          </p>
+          <p>
+            So CoinFlow is published as an <b>APK</b>, the Android install file, on its GitHub release
+            page. Installing an app this way is called <b>sideloading</b>. It's normal and allowed, but
+            Android treats a sideloaded app that wants your SMS with extra care, because scam apps often
+            ask for exactly that to steal one-time passwords.
+          </p>
+          <div class="ig-why">
+            <p class="ig-why__h"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z" /></svg>Should you trust it?</p>
+            <p>That's the right question to ask of any APK. CoinFlow has no account, no login and no server; it doesn't send your SMS anywhere. The full source is public on <a class="cf-textlink" href={REPO}>GitHub</a>, and each release APK is built and signed by GitHub Actions from that source.</p>
+            <p>Only download it from the GitHub link on this site. Never install a CoinFlow APK that someone sends you on WhatsApp or Telegram.</p>
+          </div>
+        </section>
+
+        <!-- 2 -->
+        <section class="ig-sec" id="download">
+          <p class="ig-sec__n">2</p>
+          <h2>Download the APK</h2>
+          <ol class="ig-path">
+            <li><span>Open this page on your phone and tap <a class="cf-textlink" href={APK}>Download APK</a>. The file is called <b>coinflow.apk</b>.</span></li>
+            <li><span>Chrome may say <q>File might be harmful</q>. It says that about every APK. Tap <span class="ig-ui">Download anyway</span>.</span></li>
+            <li><span>Don't open it yet. Do the Play Protect step first, or the install will likely be blocked.</span></li>
+          </ol>
+          <div class="ig-done">
+            <a class="cf-btn cf-btn--primary" href={APK}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" /></svg>
+              Download APK
+            </a>
+          </div>
+        </section>
+
+        <!-- 3 -->
+        <section class="ig-sec" id="play-protect">
+          <p class="ig-sec__n">3</p>
+          <h2>Pause Play Protect while you install</h2>
+          <p>
+            <b>Play Protect</b> is Google's built-in malware scanner. It checks every app you install,
+            including ones from outside the Play Store. In India and several other countries it goes
+            further: it <b>blocks</b> sideloaded apps that ask for SMS access, because that's how many
+            banking scams work. It can't tell CoinFlow apart from one of those, so it stops the install.
+          </p>
+          <p>You may see a message that the app was blocked to protect your device, or that it asks for sensitive permissions. To get past it, switch off Play Protect's scanning for a moment:</p>
+          <ol class="ig-path">
+            <li><span>Open the <b>Play Store</b> app.</span></li>
+            <li><span>Tap your <b>profile picture</b> in the top-right corner.</span></li>
+            <li><span>Tap <span class="ig-ui">Play Protect</span>, then the <b>gear icon</b> in the top-right.</span></li>
+            <li><span>Turn off <span class="ig-ui">Scan apps with Play Protect</span> and confirm with <span class="ig-ui">Turn off</span>.</span></li>
+          </ol>
+          <div class="ig-figs ig-figs--2">
+            <figure class="ig-fig">
+              <div class="ig-set" aria-hidden="true">
+                <div class="ig-set__bar"><svg class="ic" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" /></svg><span class="sp">Play Protect settings</span></div>
+                <div class="ig-set__row is-hi"><span class="t">Scan apps with Play Protect<small>Regularly check your device for harmful apps</small></span><span class="ig-tg on"></span></div>
+                <div class="ig-set__row is-dim"><span class="t">Improve harmful app detection<small>Send unknown apps to Google</small></span><span class="ig-tg"></span></div>
+              </div>
+              <figcaption>Turn off the first switch. Wording differs slightly between phones.</figcaption>
+            </figure>
+            <figure class="ig-fig">
+              <div class="ig-dlg" aria-hidden="true">
+                <div class="ig-dlg__ic"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z" /><path d="M9 12l2 2 4-4" /></svg></div>
+                <p class="ig-dlg__t">Turn off app scanning?</p>
+                <p class="ig-dlg__b">Play Protect will stop checking your apps for harmful behaviour.</p>
+                <div class="ig-dlg__acts"><span>Cancel</span><span class="on">Turn off</span></div>
+              </div>
+              <figcaption>Confirm. You'll switch it back on after the install.</figcaption>
+            </figure>
+          </div>
+          <div class="ig-why">
+            <p class="ig-why__h"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8" /><path d="M21 3v5h-5" /></svg>Turn it back on afterwards</p>
+            <p>Once CoinFlow is installed and has its SMS permission, go back to the same screen and switch scanning on again. Leaving it on keeps the rest of your phone protected.</p>
+            <p>If Play Protect later warns about CoinFlow, choose the option to keep the app and don't tap <b>Uninstall</b>. Uninstalling deletes your CoinFlow data.</p>
+          </div>
+          <p>Some phones show <span class="ig-ui">More details</span> then <span class="ig-ui">Install anyway</span> on the Play Protect warning. If you see that, it works too, and you can skip turning scanning off.</p>
+        </section>
+
+        <!-- 4 -->
+        <section class="ig-sec" id="unknown-apps">
+          <p class="ig-sec__n">4</p>
+          <h2>Allow the install</h2>
+          <p>
+            Android doesn't let apps like Chrome or a file manager install other apps until you say so.
+            This is the <b>Install unknown apps</b> permission, and you give it once per app you install from.
+          </p>
+          <ol class="ig-path">
+            <li><span>Open <b>coinflow.apk</b> from Chrome's downloads or your <b>Files</b> app.</span></li>
+            <li><span>Android says your phone isn't allowed to install unknown apps from this source. Tap <span class="ig-ui">Settings</span>.</span></li>
+            <li><span>Turn on <span class="ig-ui">Allow from this source</span>, go back, and tap <span class="ig-ui">Install</span>.</span></li>
+          </ol>
+          <p>Can't find the prompt? Go to <b>Settings › Apps › Special app access › Install unknown apps</b>, pick Chrome (or Files), and allow it there. On Samsung it's under <b>Settings › Apps › ⋮ › Special access</b>.</p>
+        </section>
+
+        <!-- 5 -->
+        <section class="ig-sec" id="sms">
+          <p class="ig-sec__n">5</p>
+          <h2>Give CoinFlow its SMS permission</h2>
+          <p>
+            Open CoinFlow. The setup screens ask for <b>SMS</b> and <b>Notifications</b>. Allow both.
+            On most phones running Android 12 or older, that's it.
+          </p>
+          <p>
+            On <b>Android 13 and later</b>, sideloaded apps start with some permissions locked as <b>restricted settings</b>, and on newer versions SMS is one of them. When you try to allow
+            SMS, the switch is greyed out and Android says the setting is unavailable for your security.
+            You have to unlock it first:
+          </p>
+          <ol class="ig-path">
+            <li><span>Try to allow SMS once, so the "Restricted setting" message appears. Tap <span class="ig-ui">OK</span>. The unlock option only shows after this.</span></li>
+            <li><span>Open <b>Settings › Apps › CoinFlow</b>. A quicker way: long-press the CoinFlow icon and tap <b>App info</b>.</span></li>
+            <li><span>Tap the <b>⋮</b> menu in the top-right corner, then <span class="ig-ui">Allow restricted settings</span>. Confirm with your PIN or fingerprint.</span></li>
+            <li><span>Still on App info, tap <b>Permissions › SMS</b> and choose <span class="ig-ui">Allow</span>.</span></li>
+            <li><span>Go back to CoinFlow. The setup screen shows SMS as on.</span></li>
+          </ol>
+          <div class="ig-figs ig-figs--2">
+            <figure class="ig-fig">
+              <div class="ig-dlg" aria-hidden="true">
+                <div class="ig-dlg__ic"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg></div>
+                <p class="ig-dlg__t">Restricted setting</p>
+                <p class="ig-dlg__b">For your security, this setting is currently unavailable.</p>
+                <div class="ig-dlg__acts"><span class="on">OK</span></div>
+              </div>
+              <figcaption>Seeing this is expected. It's what makes the unlock option appear.</figcaption>
+            </figure>
+            <figure class="ig-fig">
+              <div class="ig-set ig-menu" aria-hidden="true">
+                <div class="ig-set__bar"><svg class="ic" viewBox="0 0 24 24"><path d="M19 12H5m6-6-6 6 6 6" /></svg><span class="sp">App info</span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /></svg></div>
+                <div class="ig-menu__pop"><span>Uninstall for all users</span><span class="on">Allow restricted settings</span></div>
+                <div class="ig-set__row"><img src="/coinflow/icon-192.png" alt="" width="36" height="36" style="border-radius:10px" /><span class="t">CoinFlow</span></div>
+                <div class="ig-set__row"><span class="t">Notifications</span></div>
+                <div class="ig-set__row"><span class="t">Permissions<small>No permissions allowed</small></span></div>
+                <div class="ig-set__row"><span class="t">Storage and cache</span></div>
+              </div>
+              <figcaption>The ⋮ menu on CoinFlow's App info screen.</figcaption>
+            </figure>
+          </div>
+          <div class="ig-why">
+            <p class="ig-why__h"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v4h1" /></svg>Why Android does this</p>
+            <p>Scam apps sent over chat or SMS often trick people into granting SMS access so they can read banking OTPs. Restricted settings add one deliberate extra step for any app that didn't come from an app store. CoinFlow only reads bank and UPI alerts to build your ledger, and the text never leaves the phone.</p>
+          </div>
+          <h3>Notifications</h3>
+          <p>Allow notifications too. That's what gives you the one-tap Save card for each payment. If you skip it, payments still collect in CoinFlow's Review Queue, and the app shows a banner to turn them on later.</p>
+        </section>
+
+        <!-- 6 -->
+        <section class="ig-sec" id="background">
+          <p class="ig-sec__n">6</p>
+          <h2>Keep it running in the background</h2>
+          <p>
+            CoinFlow wakes up for a moment when an SMS arrives, even if you've closed it. Some phone makers
+            add aggressive battery savers that stop apps from waking up. If a payment notification doesn't
+            show up, it's usually this. Set CoinFlow's battery use to <b>Unrestricted</b>:
+          </p>
+          <dl class="ig-brands">
+            <div class="ig-brand"><dt>Samsung</dt><dd>Settings › Apps › CoinFlow › Battery › <b>Unrestricted</b>. Also make sure CoinFlow isn't in Battery › Background usage limits › Sleeping apps.</dd></div>
+            <div class="ig-brand"><dt>Xiaomi, Redmi, POCO</dt><dd>App info › <b>Autostart</b> on, then Battery saver › <b>No restrictions</b>.</dd></div>
+            <div class="ig-brand"><dt>OnePlus, Oppo, Realme</dt><dd>App info › Battery usage › allow <b>background activity</b> and <b>auto launch</b>.</dd></div>
+            <div class="ig-brand"><dt>Vivo, iQOO</dt><dd>Settings › Battery › Background power consumption › CoinFlow › <b>allow</b>. Turn on Autostart in App info.</dd></div>
+            <div class="ig-brand"><dt>Pixel, Motorola, Nothing</dt><dd>App info › App battery usage › <b>Unrestricted</b>.</dd></div>
+          </dl>
+          <p>Missed one anyway? Nothing is lost. Every time you open CoinFlow it re-checks the last 48 hours of your SMS inbox and adds anything it missed to the Review Queue.</p>
+        </section>
+
+        <!-- 7 -->
+        <section class="ig-sec" id="updates">
+          <p class="ig-sec__n">7</p>
+          <h2>Updating to a new version</h2>
+          <p>
+            Apps from the Play Store update themselves. Sideloaded apps don't, and CoinFlow has no
+            update checker of its own. To update:
+          </p>
+          <ol class="ig-path">
+            <li><span>Download the APK again from the <a class="cf-textlink" href={APK}>same link</a>. It always points to the newest release.</span></li>
+            <li><span>Open it and tap <span class="ig-ui">Update</span>. It installs over the old version and <b>your data stays</b>.</span></li>
+            <li><span>Pause Play Protect again first if it blocks the update.</span></li>
+          </ol>
+          <p>Don't uninstall the old version before updating. Uninstalling deletes everything stored in CoinFlow. If you ever need to, export your data first from <b>Settings › Data</b>.</p>
+          <p>To hear about new releases, open the <a class="cf-textlink" href={`${REPO}/releases`}>GitHub releases page</a> and use <b>Watch › Custom › Releases</b>.</p>
+        </section>
+
+        <!-- 8 -->
+        <section class="ig-sec" id="problems">
+          <p class="ig-sec__n">8</p>
+          <h2>Problems and fixes</h2>
+          <p>The issues people hit most with a sideloaded CoinFlow, and what to do about each.</p>
+          <div class="ig-faq">
+            <details>
+              <summary>Play Protect still blocks the install<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>Check that you turned off <b>Scan apps with Play Protect</b> inside the <b>Play Store</b> app (profile picture › Play Protect › gear icon), not somewhere in Settings. Then open the APK again from your downloads. If it still fails, restart the phone and retry.</p>
+              </div>
+            </details>
+            <details>
+              <summary><q>App not installed</q> or <q>conflicts with an existing package</q><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>Your phone already has a CoinFlow signed with a different key, for example a test build. Android only lets an app update if it's signed by the same key, to stop someone replacing your apps with fakes.</p>
+                <ol>
+                  <li>Open the old CoinFlow and export your data from <b>Settings › Data</b>.</li>
+                  <li>Uninstall it, then install the new APK.</li>
+                </ol>
+                <p>This can also mean the download didn't finish. Delete <b>coinflow.apk</b> and download it again.</p>
+              </div>
+            </details>
+            <details>
+              <summary><q>There was a problem parsing the package</q><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>Usually a broken download: delete the file and download it again over Wi-Fi. It can also mean your Android version is too old for CoinFlow. Check <b>Settings › About phone › Android version</b>.</p>
+              </div>
+            </details>
+            <details>
+              <summary>There's no <q>Allow restricted settings</q> in the ⋮ menu<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>The option only appears after Android has blocked the permission once. Open CoinFlow, try to allow SMS, tap <b>OK</b> on the <q>Restricted setting</q> message, then go back to App info and open ⋮ again.</p>
+                <p>No ⋮ menu at all, or the SMS switch is just missing? Your phone may not restrict SMS for sideloaded apps. Allow SMS directly in <b>App info › Permissions</b>.</p>
+              </div>
+            </details>
+            <details>
+              <summary>I tapped <q>Don't allow</q> on SMS and now it won't ask again<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>Android stops showing the prompt after you deny a permission twice. Turn it on by hand: <b>Settings › Apps › CoinFlow › Permissions › SMS › Allow</b>. CoinFlow's <b>Settings › SMS &amp; notifications</b> page has a shortcut to that screen.</p>
+              </div>
+            </details>
+            <details>
+              <summary>A payment happened but no notification came<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <ol>
+                  <li><b>Open CoinFlow.</b> It re-checks the last 48 hours of SMS and puts anything missed in the Review Queue.</li>
+                  <li>Check that both SMS and Notifications are on in <b>Settings › SMS &amp; notifications</b> inside CoinFlow.</li>
+                  <li>Set battery use to Unrestricted (see <a class="cf-textlink" href="#background">Keep it running</a>).</li>
+                  <li>Another SMS app, such as Truecaller, can grab bank alerts before other apps see them. The 48-hour re-check still catches these when you open CoinFlow.</li>
+                </ol>
+              </div>
+            </details>
+            <details>
+              <summary>My bank's messages aren't detected<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>CoinFlow only reads SMS from known bank and payment senders, and every bank words its alerts a little differently. A new format might not be recognised yet. Add those payments with the <b>+</b> button for now.</p>
+                <p>Then <a class="cf-textlink" href={`${REPO}/issues`}>open an issue on GitHub</a> with the sender name (like <b>AX-HDFCBK</b>) and the message with every number replaced by X. <b>Never post your real account number, balance or OTP.</b></p>
+              </div>
+            </details>
+            <details>
+              <summary>Split requests don't send<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>Sending a request needs the <b>Send SMS</b> permission, which CoinFlow asks for the first time you split. If you said no, CoinFlow opens your Messages app with each request filled in, and you tap send yourself. Requests go out from your default SIM and cost a normal SMS on your plan.</p>
+              </div>
+            </details>
+            <details>
+              <summary>Can I install it on an iPhone?<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p>No. iOS doesn't let any app read your SMS, so CoinFlow is Android only.</p>
+              </div>
+            </details>
+            <details>
+              <summary>Something else is wrong<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg></summary>
+              <div class="a">
+                <p><a class="cf-textlink" href={`${REPO}/issues`}>Open an issue on GitHub</a> with your phone model, Android version and what you see. A screenshot helps, but cover any amounts or account numbers first.</p>
+              </div>
+            </details>
+          </div>
+          <div class="ig-done">
+            <a class="cf-btn cf-btn--primary" href={APK}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" /></svg>
+              Download APK
+            </a>
+            <a class="cf-btn cf-btn--ghost" href="/projects/coinflow">Back to CoinFlow</a>
+          </div>
+        </section>
+      </article>
+    </div>
+  </div>
+</CoinFlowLayout>
+
+<script>
+  // Highlight the section being read in the table of contents.
+  const links = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('[data-toc]').forEach((a) => links.set(a.dataset.toc!, a));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      links.forEach((a) => a.classList.remove('is-active'));
+      links.get(en.target.id)?.classList.add('is-active');
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  links.forEach((_a, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
+</script>

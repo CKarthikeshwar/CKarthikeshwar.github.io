@@ -1,0 +1,84 @@
+---
+// Layout for the CoinFlow project pages only (/projects/coinflow and /install).
+// Full-width, carries the app's own Midnight look instead of the portfolio shell.
+import '../styles/coinflow.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Which nav item is the current page. */
+  current?: 'home' | 'install';
+}
+
+const { title, description, current = 'home' } = Astro.props;
+const APK = 'https://github.com/CKarthikeshwar/coinflow/releases/latest/download/coinflow.apk';
+const REPO = 'https://github.com/CKarthikeshwar/coinflow';
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0d0e14" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/coinflow/icon-192.png" />
+    <link rel="icon" type="image/png" href="/coinflow/favicon-64.png" />
+    <link rel="apple-touch-icon" href="/coinflow/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap"
+    />
+    <title>{title}</title>
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body class="cf">
+    <a class="cf-skip" href="#main">Skip to content</a>
+
+    <header class="cf-nav">
+      <div class="cf-nav__in">
+        <a class="cf-nav__brand" href="/projects/coinflow" aria-label="CoinFlow home">
+          <img src="/coinflow/icon-192.png" alt="" width="30" height="30" />
+          <span>CoinFlow</span>
+        </a>
+        <nav class="cf-nav__links" aria-label="CoinFlow">
+          <a href="/projects/coinflow#how" class="cf-hide-sm">How it works</a>
+          <a href="/projects/coinflow#privacy" class="cf-hide-sm">Privacy</a>
+          <a href="/projects/coinflow/install" aria-current={current === 'install' ? 'page' : undefined}>Install guide</a>
+          <a href={REPO} class="cf-hide-sm">GitHub</a>
+          <a class="cf-btn cf-btn--primary cf-btn--sm" href={APK}>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" /></svg>
+            Download
+          </a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="cf-foot">
+      <div class="cf-foot__in">
+        <div class="cf-foot__brand">
+          <img src="/coinflow/icon-192.png" alt="" width="36" height="36" />
+          <div>
+            <p class="cf-foot__name">CoinFlow</p>
+            <p class="cf-foot__meta">An Android expense tracker that reads your bank SMS on-device.</p>
+          </div>
+        </div>
+        <ul class="cf-foot__links">
+          <li><a href={APK}>Download APK</a></li>
+          <li><a href="/projects/coinflow/install">Install guide</a></li>
+          <li><a href={REPO}>Source on GitHub</a></li>
+          <li><a href={`${REPO}/issues`}>Report a problem</a></li>
+          <li><a href="/#projects">Built by C.Karthikeshwar</a></li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>
