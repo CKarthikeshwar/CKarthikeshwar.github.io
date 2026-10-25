@@ -7,6 +7,13 @@ const projects = [
       'An Android expense tracker built around one idea: you should record as little as possible. Reads bank/UPI SMS on-device, turns each transaction into a one-tap notification, and makes zero network requests by default.',
   },
   {
+    title: 'Flying Cars',
+    href: 'https://flying-cars.pages.dev/',
+    external: true,
+    description:
+      'A browser racing game where the car sticks to floors, walls and ceilings and spends one shared air tank on hops, boosts and flips. Race three AI drivers on three tracks full of gaps, sky islands and hazards, then chase the ghost of your best lap. Built from scratch in TypeScript with Three.js and Rapier physics, with every sound generated in code.',
+  },
+  {
     title: 'Adversarial Robustness: Transferability Analysis and Diffusion-Augmented Adversarial Training',
     description:
       'Compared adversarial transferability across 5 CNN architectures (ResNet18/34, VGG11/16, DenseNet121) and found gradient norm differences to be the dominant predictor of asymmetric transferability. Implemented PGD, TRADES, Incremental Adversarial Training, and AutoAttack on CIFAR-10, folding in diffusion-generated synthetic data and Fisher Information Matrix regularization.',
@@ -32,7 +39,12 @@ const projects = [
           <div class="t-glass px-5 py-6 sm:px-7 sm:py-7 lg:px-8 lg:py-7" style="background: rgba(255,255,255,0.035);">
             <h3 class="t-hover-title" style="margin: 0; font-size: 16px; font-weight: 600;">
               {project.href ? (
-                <a href={project.href} style="color: var(--t-text); display: inline-flex; align-items: center; gap: 7px;">
+                <a
+                  href={project.href}
+                  target={project.external ? '_blank' : undefined}
+                  rel={project.external ? 'noopener' : undefined}
+                  style="color: var(--t-text); display: inline-flex; align-items: center; gap: 7px;"
+                >
                   {project.title}
                   <svg
                     class="t-arrow"
