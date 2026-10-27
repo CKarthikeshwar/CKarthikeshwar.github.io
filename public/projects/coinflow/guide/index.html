@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>CoinFlow technical guide</title>
+<style>
+:root{--bg:#fff;--fg:#1a1a1a;--mute:#6b6b6b;--line:#e6e6e6;--soft:#f6f6f4;--acc:#1f5f4a}
+@media(prefers-color-scheme:dark){:root{--bg:#111;--fg:#e8e8e8;--mute:#8d8d8d;--line:#2a2a2a;--soft:#1a1a1a;--acc:#6fcfb0}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.65 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:780px;margin:0 auto;padding:0 16px 120px}
+header.top{border-bottom:1px solid var(--line)}
+header.top div{max-width:780px;margin:0 auto;padding:14px 16px;font-size:14px;color:var(--mute)}
+header.top a{color:var(--mute);text-decoration:none}
+h1{font-size:30px;line-height:1.2;margin:32px 0 6px}
+.sub{color:var(--mute);margin:0 0 8px}
+h2{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);margin:56px 0 10px;padding-top:16px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:26px 0 4px}
+p{margin:9px 0}
+ul,ol{padding-left:22px;margin:8px 0}li{margin:5px 0}
+a{color:var(--acc)}
+code{font:13px ui-monospace,Consolas,monospace;background:var(--soft);padding:1px 5px;border-radius:4px}
+pre{font:12.5px/1.5 ui-monospace,Consolas,monospace;background:var(--soft);padding:12px 14px;border-radius:8px;overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;margin:12px 0}
+td,th{border-bottom:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}
+th{color:var(--mute);font-weight:500}
+.say{background:var(--soft);border-left:3px solid var(--acc);border-radius:0 8px 8px 0;padding:11px 15px;margin:14px 0}
+.say b.l{display:block;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);margin-bottom:3px;font-weight:600}
+.why{color:var(--mute);font-size:14.5px}
+nav.toc{background:var(--soft);border-radius:8px;padding:12px 18px;margin:22px 0;font-size:14.5px}
+nav.toc ol{columns:2;column-gap:28px;margin:4px 0}
+@media(max-width:560px){nav.toc ol{columns:1}}
+details{border:1px solid var(--line);border-radius:8px;margin:8px 0}
+summary{cursor:pointer;padding:10px 14px;font-weight:600;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+ ";color:var(--mute);font-weight:400}
+details[open] summary::before{content:"\2212 "}
+details[open] summary{border-bottom:1px solid var(--line)}
+details .a{padding:4px 14px 10px}
+.btn{font:inherit;font-size:13px;color:var(--fg);background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer;margin-top:6px}
+.btn:hover{background:var(--soft)}
+</style></head><body>
+<header class="top"><div><a href="/">CK</a> / <a href="../viva/">CoinFlow viva</a> / Technical guide</div></header>
+<main>
+
+<h1>CoinFlow: the technical guide</h1>
+<p class="sub">Written to be read once, top to bottom, the night before. It explains the app itself, so every concept (threads, databases, background work) is taught through something CoinFlow actually does. Facts come from the repository at version 2.1.0.</p>
+
+<nav class="toc"><b>Contents</b>
+<ol>
+<li><a href="#pitch">The pitch</a></li>
+<li><a href="#stack">What it is built with, and why</a></li>
+<li><a href="#sms">One SMS, start to finish</a></li>
+<li><a href="#parser">How the parser reads a message</a></li>
+<li><a href="#reliable">Making detection reliable</a></li>
+<li><a href="#data">The database</a></li>
+<li><a href="#memory">Account memory</a></li>
+<li><a href="#v2">Version 2: accounts, transfers, splits</a></li>
+<li><a href="#code">How the code is organised</a></li>
+<li><a href="#privacy">Privacy and permissions</a></li>
+<li><a href="#ship">Testing and shipping</a></li>
+<li><a href="#limits">Limitations, honestly</a></li>
+<li><a href="#qa">Questions they will ask</a></li>
+<li><a href="#words">Words to know</a></li>
+</ol></nav>
+
+<h2 id="pitch">1. The pitch</h2>
+<div class="say"><b class="l">30 seconds</b>CoinFlow is an Android expense tracker where you never type a transaction. Your bank and UPI SMS already say what happened, so the app reads them on the phone, works out the amount, direction and account, and sends a notification. You tap Save, or review it quickly, and it's recorded. Everything happens on the device: there is no server, no login, and the SMS text is never stored. It is built with React Native and Expo in TypeScript, with a small Kotlin module for the Android SMS parts, and a SQLite database on the phone.</div>
+
+<div class="say"><b class="l">2 minutes</b>Five ideas carry the whole app.
+<ol>
+<li><b>Detect, don't ask.</b> A broadcast receiver in Kotlin wakes the app when an SMS arrives, even if it is closed. A JavaScript task then parses it.</li>
+<li><b>Never guess, only remember.</b> No machine learning. The only thing that pre-fills a category is what you chose last time for that same account.</li>
+<li><b>Local-first and private.</b> A SQLite database on the phone, no network code outside an opt-in crash reporter, and a test that enforces it.</li>
+<li><b>Money is an integer.</b> Every amount is stored as whole paise, so there are no floating-point errors.</li>
+<li><b>Layers with one job each.</b> Pure logic (parser, maths) is separate from the database, which is separate from the screens, so each part can be tested alone.</li>
+</ol>
+Version 2 added "My accounts" (balances, card bills, transfers between your own accounts), and split payments that travel by plain SMS between two CoinFlow users.</div>
+
+<h2 id="stack">2. What it is built with, and why</h2>
+<table>
+<tr><th>Piece</th><th>What it is</th><th>Why it was chosen</th></tr>
+<tr><td>React Native 0.86 + React 19</td><td>You write screens as React components in JavaScript. React Native turns them into real Android views, not a web page.</td><td>One language for UI and logic, fast iteration, real native look.</td></tr>
+<tr><td>Expo SDK 57</td><td>A toolkit on top of React Native: build tooling plus ready-made modules (notifications, SQLite, files, contacts, crypto).</td><td>Saves writing native code for common needs. Gives file-based routing and a cloud or local build path.</td></tr>
+<tr><td>TypeScript (strict)</td><td>JavaScript with types, checked before the app runs.</td><td>Catches wrong-type bugs early. Money and ids are easy to mix up without it.</td></tr>
+<tr><td>Hermes</td><td>The JavaScript engine used by React Native. Your code is compiled ahead of time to compact bytecode.</td><td>Faster startup and lower memory than shipping plain JavaScript.</td></tr>
+<tr><td>Kotlin module <code>coinflow-sms</code></td><td>Our own native Android code: the SMS receiver, the bridge that starts JavaScript, the store watcher, the widgets, the SMS sender.</td><td>Receiving SMS is an Android system feature, so Expo has no ready module for it. This is the one place we had to go native.</td></tr>
+<tr><td>SQLite via <code>expo-sqlite</code> + Drizzle ORM</td><td>A database that is just a file on the phone. Drizzle lets us write queries and table definitions in TypeScript.</td><td>Offline, private, fast, and needs no server. Drizzle gives typed queries and generated migrations.</td></tr>
+<tr><td>Zustand</td><td>A tiny library for in-memory UI state, like a form being filled in.</td><td>Simple. It is deliberately <i>not</i> where real data lives; that is the database.</td></tr>
+<tr><td><code>expo-router</code></td><td>Each file in <code>src/app/</code> becomes a screen.</td><td>Navigation without a hand-written route table.</td></tr>
+<tr><td><code>expo-notifications</code>, <code>expo-task-manager</code>, <code>expo-background-task</code></td><td>Local notifications with action buttons, and background work.</td><td>The Save and Discard buttons must work with the app closed.</td></tr>
+<tr><td>d3-shape, d3-scale, react-native-svg</td><td>d3 does the maths for arcs, lines and scales; SVG draws them.</td><td>Custom charts without a heavy charting library.</td></tr>
+<tr><td>Sentry (opt-in)</td><td>Crash reporting, off by default.</td><td>Useful for bugs, but it is the only network code and the user must switch it on.</td></tr>
+<tr><td>Jest + Testing Library, Maestro</td><td>Unit and component tests; one end-to-end flow.</td><td>The parser and money logic are risky, so they are tested heavily.</td></tr>
+</table>
+
+<h3>Three ideas you must be able to explain</h3>
+<p><b>How React Native works.</b> Your JavaScript runs on its own thread inside the app. It describes the UI, and React Native creates real Android views from that description. When JavaScript needs something only Android can do (read an SMS, post a notification), it calls into native code. The new architecture (<code>newArchEnabled=true</code>) lets JavaScript and native talk directly instead of through an older asynchronous message queue.</p>
+<p><b>Why not Expo Go.</b> Expo Go is a pre-built app that can run Expo projects, but it contains only Expo's standard native code. CoinFlow has its own Kotlin module, so it needs its own build, a "development build" made with <code>expo run:android</code>.</p>
+<p><b>Why Android only.</b> iOS and browsers do not let an app read SMS. The web build exists only to preview UI, and each screen shows an "Android only" notice there (<code>*.web.tsx</code> files).</p>
+
+<h2 id="sms">3. One SMS, start to finish</h2>
+<p>This is the most important section. If you can narrate this flow with the reasons, you can answer most questions.</p>
+<pre>SMS arrives
+  -> SmsReceiver.kt            (Android BroadcastReceiver, works even if the app is dead)
+  -> CoinflowSmsHeadlessTaskService.kt   (starts a JavaScript engine with no UI)
+  -> smsIngestTask()           (src/services/tasks/sms-ingest.ts)
+       1  sender allowlist?     no  -> stop
+       2  parseSms()            OTP / promo / request / foreign currency -> stop
+       3  is it a transaction?  no  -> stop
+       4  dedupe check          already seen -> stop
+       5  save a Suggestion row (not yet a real transaction)
+       6  look up the account's learned rule
+       7  post a notification
+       8  self-heal: re-post notifications that got lost
+  -> user taps Save (or opens the Review Queue)
+  -> a real Transaction row is written
+  -> every screen showing that data refreshes by itself</pre>
+
+<h3>Step by step, with the reason</h3>
+<ul>
+<li><b>The broadcast receiver.</b> Android sends a system broadcast, <code>SMS_RECEIVED</code>, for every incoming text. A receiver declared in the manifest is started by Android even if the app is not running. That is the only way to be woken by an SMS. It has roughly 10 seconds, so it does almost nothing: it joins multi-part messages, takes the sender, body and timestamp, and hands them on.</li>
+<li><b>The headless task.</b> A "headless JS task" starts the JavaScript engine with no screen attached and runs one registered function by name, <code>CoinflowSmsIngest</code>, within a 30 second budget. This is why <code>index.js</code> imports <code>src/services/tasks</code> <i>before</i> the router: the registration must exist even when Android starts the app just to run this task.</li>
+<li><b>Sender allowlist.</b> Indian bank SMS come from ids like <code>AD-HDFCBK</code>: a telecom prefix, a dash, then the bank's id. The prefix is stripped and the rest compared with a curated list (HDFC, SBI, ICICI, Axis, Kotak, Paytm, PhonePe, GPay and others). Random spam never reaches the parser. The list is hand-edited in <code>src/constants/sms-senders.ts</code>.</li>
+<li><b>Parse, then gate.</b> <code>parseSms</code> is a pure function (section 4). It returns "ignored, here is why" or "a transaction with these fields".</li>
+<li><b>Dedupe.</b> The key is <code>sha256(sender | amount | minute | direction)</code>. If the same message is processed twice (a retry, or one of our backup detection paths), the key already exists and nothing is created. Both the suggestion and transaction tables carry the key, since a suggestion may already have been cleaned up.</li>
+<li><b>Suggestion, not transaction.</b> Detected items are saved as a <code>suggestion</code> with status pending. Only your confirmation turns one into a <code>transaction</code>. This keeps a wrong guess from polluting your real ledger.</li>
+<li><b>Notification.</b> If the account has a learned category, the notification offers a one-tap <b>Save</b>. Otherwise it only opens the review sheet. Tapping Save runs in a background task, so the app need not open.</li>
+<li><b>Self-heal.</b> If the task was killed after saving the suggestion but before notifying, the next run notices a pending suggestion with no notification and posts it.</li>
+<li><b>Live refresh.</b> SQLite is opened with <code>enableChangeListener: true</code> and screens read through Drizzle's <code>useLiveQuery</code>. Any write, including one from the background task, re-runs the queries on screen. Nothing calls "refetch".</li>
+</ul>
+
+<div class="say"><b class="l">Design rules inside this flow</b>The ingest function <b>never throws</b>: Android may run it under tight limits, and a crash could make the OS less willing to wake the app again, so failures are logged by error type only and swallowed. The <b>SMS body is never written to disk or logs</b>, only the fields extracted from it. It reuses the same repository functions as the UI, so a notification Save and an in-app Save cannot behave differently.</div>
+
+<h2 id="parser">4. How the parser reads a message</h2>
+<p>The parser lives in <code>src/domain/parser/</code> and imports nothing from React Native or Expo. That is on purpose: a function that takes text and returns a result can be tested against hundreds of real message formats without running the app.</p>
+
+<h3>Order of the checks</h3>
+<ol>
+<li><b>Sender gate</b> (allowlist above).</li>
+<li><b>Ignore gate</b> (<code>ignore-rules.ts</code>), first match wins: OTP; promo (words like "offer", "loan", "discount", or a link with no money verb); balance-only; a money <i>request</i> ("collect request"); foreign currency without an INR amount; not yet settled ("will be credited", "is pending"). It runs <i>before</i> extraction so a promo saying "₹500 cashback" is never read as a ₹500 transaction.</li>
+<li><b>Extraction</b> (<code>extract.ts</code>), regular expressions that find the amount, the direction, the other party, and the payment method (UPI is detected from a VPA like <code>name@bank</code>).</li>
+<li><b>Transaction gate:</b> if neither an amount nor a direction was found, it is not a transaction.</li>
+</ol>
+
+<h3>The hard part: picking the right amount and direction</h3>
+<p>A real SMS can say "Rs 500 debited ... Avl bal Rs 12,340". Two amounts, and it could even contain both "debit" and "credit". The rule is <b>closest to a direction word wins</b>:</p>
+<ul>
+<li>One amount: that is it. Several amounts but no direction word: take the first.</li>
+<li>Several amounts and a direction word: choose the amount fewest characters from any direction word. A bank writes the amount next to the verb ("Rs 500 debited"), not next to the balance.</li>
+<li>Both debit and credit words: choose whichever is nearer the chosen amount. If exactly tied, flag it ambiguous and let the user decide.</li>
+</ul>
+
+<h3>Details that show you understand it</h3>
+<ul>
+<li><b>Paise as integers.</b> The amount string is split at the decimal point and converted to an integer count of paise. It is never parsed into a floating-point rupee value. Indian digit grouping (<code>1,00,000</code>) is handled by the regex.</li>
+<li><b>Sanity ceiling.</b> Amounts above ₹1 crore, or zero, are flagged out of range instead of trusted.</li>
+<li><b>Time is the receive time.</b> <code>occurredAt</code> is when the phone received the SMS, not a time parsed out of the text, because banks format timestamps inconsistently.</li>
+<li><b>No confidence score.</b> A field is either found or <code>null</code>. It is left blank for you to fill, never guessed.</li>
+<li><b>Test corpus.</b> The parser is tested against a fixture file of anonymised real bank messages. Each new bank format that fails becomes a new test case.</li>
+</ul>
+
+<h2 id="reliable">5. Making detection reliable</h2>
+<p>The broadcast alone is not enough, and this is a good story to tell. During testing, a message was missed. The cause: another app that also holds the SMS permission (Truecaller is an example) can register at the same priority and call <code>abortBroadcast()</code>, so CoinFlow's receiver never runs. No error, no log. The fix was to stop depending on one signal.</p>
+<table>
+<tr><th>Path</th><th>How it works</th><th>Limit</th></tr>
+<tr><td>1. Broadcast</td><td><code>SmsReceiver</code>, real time.</td><td>Can be aborted by another app.</td></tr>
+<tr><td>2. Store watcher</td><td>A <code>JobScheduler</code> job triggered by a change to Android's shared SMS store. An app can abort a broadcast but cannot stop the message being written to the store.</td><td>A content-trigger job fires once, so it re-arms itself first thing. It does not survive a reboot, so JavaScript re-arms it on launch. Doze can delay it.</td></tr>
+<tr><td>3. App-open sweep</td><td>On launch and every return to the foreground, re-read the last 48 hours of the inbox and run each message through the same ingest function. Notifications are skipped because you are already looking.</td><td>Only runs when the app is opened.</td></tr>
+<tr><td>4. Periodic task</td><td>A background task about every 12 hours, doing the same sweep with notifications on.</td><td>The OS batches and delays these.</td></tr>
+</table>
+<p><b>Why this is safe to run repeatedly:</b> all four paths feed the same <code>smsIngestTask</code>, and the dedupe key makes processing a message twice harmless. That property is called <b>idempotency</b>. A fixed 48-hour lookback was chosen over a saved "last synced" marker so there are no cursor or clock bugs to worry about.</p>
+<p class="why">An Android 12+ detail from the code: the store watcher runs the JavaScript task itself instead of calling <code>startService</code>, because an idle background app is refused with <code>BackgroundServiceStartNotAllowedException</code> (seen on a Samsung phone running Android 16).</p>
+
+<h2 id="data">6. The database</h2>
+<h3>Tables that matter</h3>
+<table>
+<tr><th>Table</th><th>Holds</th></tr>
+<tr><td><code>transaction</code></td><td>Confirmed money movements: amount in paise, direction, type (expense, income, transfer, refund, reimbursement), category, payment method, account, note, time, <code>source</code> (manual or sms), <code>deletedAt</code>.</td></tr>
+<tr><td><code>suggestion</code></td><td>SMS-detected items waiting for you. Status pending, confirmed or dismissed. Unique <code>dedupeKey</code>.</td></tr>
+<tr><td><code>category</code></td><td>9 default expense categories plus Uncategorized, a few income ones, and your own. Types: system, default, custom.</td></tr>
+<tr><td><code>account_rule</code></td><td>The account memory: for one normalised account, the last category, income category, note and payment method.</td></tr>
+<tr><td><code>my_account</code>, <code>account_balance</code></td><td>V2: your own bank, card, wallet and cash accounts, and card limits and due dates.</td></tr>
+<tr><td><code>person</code>, <code>split</code>, <code>split_share</code>, <code>split_request_in</code>, <code>settlement</code></td><td>V2: people, split payments, each person's share, requests received, and payments that settle them.</td></tr>
+<tr><td><code>app_setting</code></td><td>Small key-value settings, stored as JSON.</td></tr>
+</table>
+
+<h3>Design choices to defend</h3>
+<ul>
+<li><b>Money is an integer count of paise.</b> Floating point cannot represent 0.1 exactly, so sums drift (0.1 + 0.2 gives 0.30000000000000004). Integers add exactly. Columns even have <code>CHECK (amount &gt; 0)</code> constraints.</li>
+<li><b>Soft delete and undo.</b> Deleting sets <code>deletedAt</code> instead of removing the row, which allows the Undo snackbar. A cleanup purges rows after the grace period.</li>
+<li><b>Indexes.</b> On the columns the screens filter and sort by, like <code>(deletedAt, occurredAt)</code> for the ledger, plus category, account and dedupe key.</li>
+<li><b>Foreign keys are enforced</b> (<code>PRAGMA foreign_keys = ON</code>), so deleting a category sets <code>categoryId</code> to null on transactions instead of leaving a dangling reference.</li>
+<li><b>WAL mode</b> lets a screen read while the background task writes.</li>
+<li><b>Synchronous SQLite API.</b> The UI and the headless task use the same code path, with no async and sync variants to keep aligned. SQLite is local and fast, so the main thread is not blocked noticeably.</li>
+<li><b>Migrations.</b> <code>drizzle-kit generate</code> compares <code>schema.ts</code> with the previous state and writes a SQL migration, committed to the repo. At startup <code>MigrationGate</code> applies pending ones before rendering anything, with the splash screen still showing. If migrations fail it shows a recovery screen with "Try again" and "Export a copy", and never wipes data silently.</li>
+<li><b>Repository pattern.</b> Only <code>src/db/repositories/*</code> runs queries. Screens call repository functions. Derived fields (<code>type</code> from direction, the normalised account key, search text) are computed in one place, so every caller gets them.</li>
+<li><b>Search</b> uses SQLite FTS5 (full-text search) when available.</li>
+</ul>
+
+<h2 id="memory">7. Account memory</h2>
+<p>Many apps guess a category from keywords or a trained model. CoinFlow does not. The only thing that pre-fills a category is: <i>have you confirmed a transaction from this exact account before, and what did you choose?</i></p>
+<ul>
+<li>Bank SMS never write the same account the same way twice (reference numbers change). <code>normalize.ts</code> lower-cases the string and strips masked digits, long references and punctuation, so <code>HDFC A/c XX1234 REF001</code> and <code>...REF002</code> become the same key. UPI ids keep their <code>@ . _ -</code> characters, because those are part of the identity.</li>
+<li>Each key has one <code>account_rule</code> row: expense category, income category (the same person can both be paid by you and pay you back), last note, last payment method, and a hit count. Confirming a transaction updates it.</li>
+<li>A rule is <b>known</b> if it has a remembered category for that direction or a note. Known accounts get a one-tap Save; new ones need a review.</li>
+<li>No account parsed, or no rule, means Uncategorized with a blank note. It never guesses.</li>
+</ul>
+<p class="why">Why defend this: it is explainable and predictable. You can always say exactly why a category was chosen, and a wrong guess cannot silently corrupt your data. The trade-off is a cold start: the first transaction from each account needs a manual choice.</p>
+
+<h2 id="v2">8. Version 2: accounts, transfers, splits</h2>
+<h3>My accounts and balances</h3>
+<ul>
+<li>When an SMS names a bank and the last 4 digits, the app <b>auto-creates</b> a <code>my_account</code> with <code>matchKey = bank + last4</code>, which is unique. A card SMS creates a credit-card account.</li>
+<li><b>Balance is the sum of the account's own transactions</b>, credits plus and debits minus, starting from zero. It is never read from the bank's "available balance" text. That keeps one consistent definition and means the figure is never "unknown", though it is not the bank's real balance. Say this directly if asked.</li>
+<li>Credit-card statements update the card's due date and amount, and the app schedules a reminder at 10:00, two days before the due date.</li>
+</ul>
+
+<h3>Transfers between your own accounts</h3>
+<p>Moving ₹5,000 from savings to a card creates a debit on one account and a credit on another. Counting both as spending and income would be wrong. <code>matchTransfer</code> looks for a twin: opposite direction, <b>same amount</b>, <b>different account</b>, within <b>15 minutes</b>. If exactly one match exists in both directions and at least one side came from an SMS, they are linked automatically as a transfer. If it is ambiguous, the app asks you. The principle is stated in the code: a wrong silent link hides real spending, a missed link only shows two rows, so it errs towards asking.</p>
+
+<h3>Split payments</h3>
+<ul>
+<li>You split one transaction among people. Each person's <b>share</b> is a positive whole number of paise. <b>Your own share is never stored</b>; it is derived as <code>amount - sum of shares</code>, so the totals can never disagree.</li>
+<li>Percent splits are converted to paise with the <b>largest-remainder method</b>, so the shares always add up exactly to the total (₹100 split three ways gives 3334 + 3333 + 3333 paise, not three times 33.33).</li>
+<li><b>The request travels as an ordinary SMS</b>, with no server: <code>Name requests Rs 450.00 for Momos (CoinFlow split). {cf1|ab2cd3|45000|Momos}</code>. The sentence is for a human without the app. The <code>{cf1|ref|paise|note}</code> token is what the other CoinFlow reads. The same ref with a new amount updates the request, and amount 0 withdraws it.</li>
+<li>The text uses <code>Rs</code>, not <code>₹</code>, because <code>₹</code> is outside the GSM-7 SMS alphabet and would force a 70-character UCS-2 message instead of 160.</li>
+<li><b>Incoming requests are untrusted input.</b> Anyone can send that text, so it must come from a <i>numeric</i> sender (banks use alphanumeric ids, so a bank text can never be mistaken for one), match a strict grammar, stay within bounds and rate limits, and is idempotent per (sender, ref). Nothing is accepted, paid or replied to automatically.</li>
+<li><code>SEND_SMS</code> is asked for only at the moment you press Send. If refused, the app opens each pre-filled message in your SMS app instead of sending silently.</li>
+</ul>
+
+<h3>Widgets</h3>
+<p>Home-screen widgets (balance, review queue) are native Kotlin. JavaScript computes a snapshot using the same query as the Analytics screen, so the two can never disagree, and hands it to the native widget providers. The snapshot is also refreshed at the end of every background task.</p>
+
+<h2 id="code">9. How the code is organised</h2>
+<pre>src/app/        screens (expo-router). Thin: mostly wiring
+src/features/   the real screen content, grouped by feature
+src/domain/     pure logic: parser, categorize, normalize, analytics, split, balance
+src/db/         schema, client, migrations, repositories (the only code that queries)
+src/services/   background tasks, notifications, SMS wrapper, splits, widgets, crash
+src/stores/     Zustand: in-memory UI state only
+src/ui/         reusable components (Button, Card, TextField...)
+modules/coinflow-sms/   the Kotlin native module</pre>
+<ul>
+<li><b>Dependency direction.</b> Screens call features, features call repositories and domain, domain imports nothing from the framework. Pure code is easy to test, and the same <code>domain</code> code runs in the UI and the headless task.</li>
+<li><b>One sheet for three jobs.</b> Add, Edit and Confirm are the same bottom-sheet component in different modes, because they share almost every field. One shared sheet host renders sheets, opened from anywhere through a small registry store.</li>
+<li><b>State has two homes.</b> Data you must keep lives in SQLite. Things like half-typed form text live in Zustand and vanish when the app closes. Before adding state, ask which kind it is.</li>
+<li><b>Analytics.</b> SQL aggregates the rows; the pure functions in <code>domain/analytics.ts</code> compute percent change, daily buckets, mean and median spend and the chart scale; d3 shapes drawn with react-native-svg render the charts. Days are local-device days, not UTC.</li>
+<li><b>Startup order:</b> <code>index.js</code> registers background tasks, then the root layout waits for fonts, <code>MigrationGate</code> migrates, seeds default categories and purges soft-deleted rows, and only then does the navigator choose onboarding or the tabs.</li>
+</ul>
+
+<h2 id="privacy">10. Privacy and permissions</h2>
+<ul>
+<li><b>No network, and a test proves it.</b> <code>no-network.test.ts</code> scans <code>domain</code>, <code>db</code>, <code>features</code> and <code>services</code> and fails if any file makes a network call. The only exception is <code>services/crash/</code>.</li>
+<li><b>Crash reporting is opt-in.</b> Until you enable it in Settings no Sentry transport object exists. When on, events pass through scrubbing (<code>redactError</code> in the logger, then Sentry's <code>beforeSend</code> and <code>beforeBreadcrumb</code>) that removes anything resembling money, accounts or UPI ids. Logs record error <i>type names</i> only, never messages, since messages could contain SMS text.</li>
+<li><b>No SMS text stored.</b> The body is used in memory, and only parsed fields are saved.</li>
+<li><b>Permissions:</b> <code>RECEIVE_SMS</code> and <code>READ_SMS</code> for detection; <code>SEND_SMS</code> optional and just in time for split requests; contacts only when you choose someone to split with, and <code>WRITE_CONTACTS</code> is explicitly blocked; notifications.</li>
+<li><b>Getting data out:</b> export as JSON, CSV or a raw database copy through the Android share sheet. You choose where it goes; the app uploads nothing. There is no import.</li>
+<li><b>Honest caveat:</b> the SMS permission is sensitive. Google Play restricts which apps may request it, so expect a question on why the app is distributed as an APK; answer with what you actually did.</li>
+</ul>
+
+<h2 id="ship">11. Testing and shipping</h2>
+<ul>
+<li><b>Tests:</b> about 126 test files with Jest and Testing Library. The weight is on pure logic: the parser corpus, categorize and normalize, split arithmetic, transfer matching, balance, analytics. Plus repository tests, component tests and the no-network guard. One Maestro flow covers end to end.</li>
+<li><b>Checks before a build:</b> <code>npm run typecheck</code> (<code>tsc --noEmit</code>), <code>npm run lint</code>, <code>npm test</code>.</li>
+<li><b>Build:</b> <code>npm run android</code> makes a development build, installs it and starts Metro, the dev server that bundles the JavaScript and reloads it live. Editing Kotlin needs a full native rebuild; editing TypeScript does not.</li>
+<li><b>Release:</b> pushing a tag such as <code>v2.1.0</code> triggers a GitHub Actions workflow. It runs <code>expo prebuild</code> to generate the <code>android/</code> folder (never committed), injects a signing config from secrets with a small config plugin, builds with Gradle, and attaches a signed <code>coinflow.apk</code> to a GitHub Release. The permanent link <code>releases/latest/download/coinflow.apk</code> always serves the newest one.</li>
+<li><b>Why signing matters:</b> Android refuses to install an update signed with a different key, so the same keystore must be used every time.</li>
+</ul>
+
+<h2 id="limits">12. Limitations, honestly</h2>
+<p>Naming these yourself reads as understanding, not weakness.</p>
+<ul>
+<li><b>Regex parsing is brittle.</b> A bank changing its wording can break detection until a pattern is added. That is why there is a fixture corpus. The alternative, a language model, would need either a network or a heavy on-device model, which conflicts with the privacy goal.</li>
+<li><b>The sender list is hand-curated.</b> A bank missing from it is invisible until the list is edited.</li>
+<li><b>Android only,</b> by platform rules.</li>
+<li><b>Balance is computed from your transactions,</b> not the bank's figure, so it is only right if every transaction is recorded.</li>
+<li><b>Background timing is up to Android.</b> Doze and app standby can delay the store watcher and periodic sweep, so detection is not guaranteed instant.</li>
+<li><b>Notifications do not visually stack.</b> The installed <code>expo-notifications</code> does not expose Android's grouping call, and fixing it would need more native code. Accepted gap.</li>
+<li><b>Known gap:</b> the "restore a lost notification" self-heal runs when a new SMS arrives, not on every launch, so a notification lost to a reboot returns only at the next SMS (the suggestion itself is never lost).</li>
+<li><b>No import, no light theme,</b> no iOS support. Split requests rely on SMS, so they need both people to run CoinFlow and are not guaranteed delivered.</li>
+</ul>
+
+<h2 id="qa">13. Questions they will ask</h2>
+<p>Open each, answer out loud first, then compare. These are the questions an interviewer would raise from the material above.</p>
+<div id="qa-list">
+
+<details><summary>How does your app detect a transaction when it is closed?</summary><div class="a">A Kotlin <code>BroadcastReceiver</code> declared in the manifest is started by Android for every incoming SMS, even if the app is dead. It passes the sender, body and time to a headless JS service that boots the JavaScript engine with no UI and runs a registered task, <code>smsIngestTask</code>. That task filters, parses, saves a suggestion and posts a notification. The registration is imported first in <code>index.js</code> so it exists when Android starts the app only for this.</div></details>
+
+<details><summary>Why didn't you just write the whole app in Kotlin?</summary><div class="a">Most of the app is ordinary UI and logic, where React Native is faster to build and one codebase is easier to test. Only the parts that need Android system access went native, as a small module. The logic that matters (parser, maths) is plain TypeScript, so it is also unit-testable without a device.</div></details>
+
+<details><summary>Why SQLite and not a cloud database?</summary><div class="a">The privacy promise is that financial data never leaves the phone. A local database gives that, works offline, and needs no server or login. The trade-off is no automatic backup or multi-device sync, so I added export (JSON, CSV, raw copy).</div></details>
+
+<details><summary>Why store money as integers?</summary><div class="a">Floating-point numbers cannot represent most decimals exactly, so sums drift. Storing whole paise and doing integer arithmetic is exact. I convert the text amount to paise by splitting at the decimal point, never through a float.</div></details>
+
+<details><summary>How does the parser pick the right amount when a message has two?</summary><div class="a">It finds every amount and every debit or credit word, then picks the amount with the smallest character distance to a direction word, since banks write "Rs 500 debited" together while the balance sits elsewhere. If both debit and credit words appear, the nearer one to that amount decides, and an exact tie is flagged ambiguous rather than guessed.</div></details>
+
+<details><summary>How do you avoid duplicate transactions?</summary><div class="a">Each detected SMS gets a SHA-256 key from sender, amount, minute and direction. The suggestion table has a unique index on it, and the transaction table stores it too. All four detection paths call the same ingest function, so processing a message twice is harmless: the operation is idempotent.</div></details>
+
+<details><summary>Is your categorisation machine learning?</summary><div class="a">No, deliberately. It is a lookup: the category you last confirmed for that normalised account. It is explainable, never silently wrong, and works offline with no model. The cost is that the first transaction from a new account needs a manual choice.</div></details>
+
+<details><summary>What is a headless JS task, and what is its limit?</summary><div class="a">JavaScript running without any screen, started by native code to do one job. It has a time budget (30 seconds for SMS ingest), must not rely on React state, and has to open its own database connection. So it must be fast, must never throw, and shares only the database and pure logic with the UI.</div></details>
+
+<details><summary>What if another app blocks the SMS broadcast?</summary><div class="a">That happened in testing: an app with the same permission can abort the broadcast before mine runs. So I added a JobScheduler trigger on the SMS store itself (the message is still written there), a sweep of the last 48 hours whenever the app opens, and a periodic background sweep. They all feed the same ingest function, and dedupe makes the overlap safe.</div></details>
+
+<details><summary>How do screens update when the background task writes data?</summary><div class="a">SQLite is opened with a change listener, and screens read through <code>useLiveQuery</code>, which re-runs the query when a write happens anywhere. The write could be from the UI or from the headless task. No screen refetches manually.</div></details>
+
+<details><summary>Why a Suggestion table instead of writing transactions straight away?</summary><div class="a">A detection can be wrong or partial (a missing amount, an unusual message). Keeping it as a pending suggestion means nothing reaches the real ledger or analytics until you confirm it, and dismissing it leaves no trace.</div></details>
+
+<details><summary>What is the repository pattern and why use it?</summary><div class="a">All queries for a table live in one file, and nothing else touches the database directly. Derived fields are computed in one place, behaviour is consistent, and changing storage later means editing one file. Screens and background tasks call the same functions.</div></details>
+
+<details><summary>How do migrations work?</summary><div class="a">I change <code>schema.ts</code>, run <code>drizzle-kit generate</code>, and it writes a SQL migration comparing old and new schema. Migrations are committed. On launch <code>MigrationGate</code> applies pending ones before any screen renders, so existing users' data is upgraded in place, not erased.</div></details>
+
+<details><summary>How do you know a transfer between your own accounts is not spending?</summary><div class="a">I look for a twin transaction: opposite direction, same amount, different account, within 15 minutes. If there is exactly one candidate both ways and one side came from an SMS, I link them automatically. Otherwise I ask. A wrong silent link would hide real spending; a missed one only shows two rows.</div></details>
+
+<details><summary>How can two phones split a bill without a server?</summary><div class="a">The request is a normal SMS with a machine-readable token at the end. The receiving CoinFlow recognises the token, and shows a request you can accept or reject. Nothing is acted on automatically. Because anyone could send such a text, the receiver only trusts a numeric sender, a strict format, bounded values and rate limits.</div></details>
+
+<details><summary>Why use "Rs" instead of the rupee sign in the request?</summary><div class="a">The rupee sign is not in the GSM-7 SMS alphabet. One such character switches the whole message to UCS-2, cutting a segment from 160 characters to 70, which means more segments and a higher chance of failure. Plain text keeps it compact.</div></details>
+
+<details><summary>How do you prove the app makes no network requests?</summary><div class="a">There is a test that scans the source folders for network calls and fails if it finds one outside the crash-reporting folder. It is a static check, so a future mistake is caught by the tests and not by someone remembering.</div></details>
+
+<details><summary>What about user privacy if crash reporting is on?</summary><div class="a">It is off by default and opt-in. When on, errors go through two layers of scrubbing that remove anything that looks like money, accounts or UPI ids, and the logger only records the error type name, not its message.</div></details>
+
+<details><summary>Why can't this be on iOS or the web?</summary><div class="a">Neither platform allows an app to read the user's SMS, for privacy reasons enforced by Apple and browsers. The web build only previews the UI with an "Android only" notice.</div></details>
+
+<details><summary>Why can't you use Expo Go?</summary><div class="a">Expo Go contains only Expo's standard native modules. Our SMS module is custom Kotlin, so we need our own development build.</div></details>
+
+<details><summary>How do you release it?</summary><div class="a">Pushing a version tag runs a GitHub Actions workflow that generates the Android project, applies the signing config from encrypted secrets, builds a signed APK with Gradle, and attaches it to a GitHub Release under a fixed filename, so one download link always points to the latest.</div></details>
+
+<details><summary>What would you improve next?</summary><div class="a">Sample answer, adjust to what you believe: More bank formats and a way to add senders without editing code; import to complement export; running the notification self-heal on every launch; and, if I could accept some on-device model, a fallback for messages the regex cannot read.</div></details>
+
+<details><summary>Tell me about a bug you hit.</summary><div class="a">A good one from the code and its comments: the silently missing SMS caused by another app aborting the broadcast. It left no log because no code of mine ran. Finding it needed on-device testing, and the fix was to depend on several independent signals instead of one.</div></details>
+
+</div>
+<button class="btn" id="tog">Open all answers</button>
+
+<h2 id="words">14. Words to know</h2>
+<table>
+<tr><td><b>BroadcastReceiver</b></td><td>An Android component that is woken by a system event, like an incoming SMS.</td></tr>
+<tr><td><b>Headless JS task</b></td><td>JavaScript run with no UI, started by native code.</td></tr>
+<tr><td><b>Idempotent</b></td><td>Doing it twice has the same effect as doing it once.</td></tr>
+<tr><td><b>Doze</b></td><td>Android's battery saver that delays background work on an idle phone.</td></tr>
+<tr><td><b>JobScheduler</b></td><td>Android's system for running background jobs under conditions, such as a content change.</td></tr>
+<tr><td><b>Hermes</b></td><td>The JavaScript engine in React Native, running precompiled bytecode.</td></tr>
+<tr><td><b>Metro</b></td><td>The dev server that bundles the JavaScript for the app.</td></tr>
+<tr><td><b>ORM</b></td><td>Lets you use database rows as typed objects and write queries in code.</td></tr>
+<tr><td><b>Migration</b></td><td>A saved script that moves an existing database to a new schema without losing data.</td></tr>
+<tr><td><b>WAL</b></td><td>SQLite write-ahead logging: readers and a writer do not block each other.</td></tr>
+<tr><td><b>FTS5</b></td><td>SQLite's full-text search feature.</td></tr>
+<tr><td><b>Soft delete</b></td><td>Mark a row deleted instead of erasing it, to allow undo.</td></tr>
+<tr><td><b>Paise / minor units</b></td><td>The smallest currency unit, stored as an integer. 100 paise = ₹1.</td></tr>
+<tr><td><b>Normalisation</b></td><td>Turning messy text into one consistent comparable key.</td></tr>
+<tr><td><b>VPA</b></td><td>UPI virtual payment address, like <code>name@bank</code>.</td></tr>
+<tr><td><b>DLT sender id</b></td><td>The regulated SMS header format in India, like <code>AD-HDFCBK</code>.</td></tr>
+<tr><td><b>GSM-7 / UCS-2</b></td><td>SMS character sets: 160 chars per message versus 70.</td></tr>
+<tr><td><b>Largest-remainder method</b></td><td>Rounds shares so they sum exactly to the total.</td></tr>
+<tr><td><b>Pure function</b></td><td>Output depends only on input, with no side effects, so it is easy to test.</td></tr>
+<tr><td><b>Signed APK</b></td><td>An installable file stamped with a private key; updates must use the same key.</td></tr>
+</table>
+
+</main>
+<script>
+var d=[].slice.call(document.querySelectorAll('#qa-list details')),open=false,b=document.getElementById('tog');
+b.onclick=function(){open=!open;d.forEach(function(x){x.open=open});b.textContent=open?'Close all answers':'Open all answers'};
+</script>
+</body></html>

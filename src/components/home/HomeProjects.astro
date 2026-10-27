@@ -21,6 +21,11 @@ const projects = [
       'A browser racing game where the car sticks to floors, walls and ceilings and spends one shared air tank on hops, boosts and flips. Race three AI drivers on three tracks full of gaps, sky islands and hazards, then chase the ghost of your best lap. Built from scratch in TypeScript with Three.js and Rapier physics, with every sound generated in code.',
   },
   {
+    title: 'Proof Verifier',
+    description:
+      'A web app where a maths student writes a discrete-maths proof by hand, one step per line, and a real proof checker marks it. Each finished line is read from the handwriting, translated into Lean 4, and checked by Lean with Mathlib; the student then gets a plain-English note on what is verified, what is still missing and what is wrong, so the feedback comes from Lean accepting or rejecting steps and not from a chatbot\'s opinion. Edit an earlier line and the steps below it are checked again. Built on an Excalidraw canvas with a React and TypeScript front end, FastAPI services for reading, translation and Lean, and a chain of language models (Leanstral, Gemini, Groq) with lemma retrieval from Mathlib.',
+  },
+  {
     title: 'Adversarial Robustness: Transferability Analysis and Diffusion-Augmented Adversarial Training',
     description:
       'Compared adversarial transferability across 5 CNN architectures (ResNet18/34, VGG11/16, DenseNet121) and found gradient norm differences to be the dominant predictor of asymmetric transferability. Implemented PGD, TRADES, Incremental Adversarial Training, and AutoAttack on CIFAR-10, folding in diffusion-generated synthetic data and Fisher Information Matrix regularization.',
