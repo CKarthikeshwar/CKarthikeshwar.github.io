@@ -27,7 +27,7 @@ details[open] summary::before{content:"\2212 ";}
 details[open] summary{border-bottom:1px solid var(--line)}
 pre{margin:0;padding:12px;white-space:pre-wrap;word-break:break-word;font:12.5px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;background:var(--soft);border-radius:0 0 8px 8px;overflow-x:auto}
 </style></head><body>
-<header class="top"><div><h1><a href="/">CK</a> / CoinFlow <span style="color:var(--mute);font-weight:400">&middot; 129 turns</span></h1>
+<header class="top"><div><h1><a href="/">CK</a> / CoinFlow <span style="color:var(--mute);font-weight:400">&middot; 144 turns</span></h1>
 <button id="t">Expand all</button></div></header>
 <main><div class="sess">Session 1 &middot; 29 turns</div><section class="turn" id="t1"><div class="n">Turn 1</div><div class="u">/model
   ⎿  Set model to Opus 5.5 (default) and saved as your default for new sessions</div></section><section class="turn" id="t2"><div class="n">Turn 2</div><div class="u">check what&#x27;s the status of the project
@@ -15310,7 +15310,446 @@ lease\\app-release.apk&quot; 2&gt;&amp;1 | tail -3&quot; completed (exit code 0)
 ● Usage limit reached · continuing automatically at 12:50am · esc to
   cancel
 
-✻ Cooked for 40s · done 10:35 PM</pre></details></section></main><script>
+✻ Cooked for 40s · done 10:35 PM</pre></details></section><div class="sess">Session 6 &middot; 15 turns</div><section class="turn" id="t130"><div class="n">Turn 130</div><div class="u">C:\Users\C.Karthikeshwar\Desktop\transcript5cf.md go through this once especially the later parts and can you resume the work from there</div><details><summary>Response</summary><pre>  Searched for 3 patterns, read 3 files (ctrl+o to expand)
+
+● Resuming the duplicate-review-item investigation. Every save path I&#x27;ve read so
+  far copies the fingerprint onto the transaction, so I&#x27;m now reading how
+  ingest and the reconcile sweep compute it.
+
+  Searched for 4 patterns, read 2 files, ran 1 shell command (ctrl+o to expand)
+
+● I still can&#x27;t pin down the exact cause of the duplicate review item. I&#x27;ve
+  stopped investigating and need your call on how to proceed.
+
+  What I checked in the code (nothing changed)
+  - Save paths: Review Queue Save (transaction-sheet.tsx:347), Save all
+    (respond.ts:195) and notification Accept (respond.ts:121) all copy the SMS
+    fingerprint (dedupeKey) onto the saved transaction. So the gap I suspected
+    before the usage limit isn&#x27;t in any of them.
+  - Ingest: the live SMS path and the app-open sweep both go through the same
+    smsIngestTask. It builds the fingerprint from sender, amount, direction and
+    the minute of occurredAt, then checks hasDedupeKey against both transactions
+    and suggestions. My uncommitted changes to sms-ingest.ts only removed
+    balance-snapshot code and didn&#x27;t touch this logic.
+  - Time source: the transaction&#x27;s time is not parsed from the message. It&#x27;s the
+    SMS timestamp (parse-sms.ts:134).
+    - The live receiver uses the SMS center&#x27;s timestamp.
+    - The sweep uses the inbox&#x27;s date column, which is when the phone received
+      it.
+    - If those two differ across a minute boundary, the same text gets two
+      fingerprints.
+    - Both of your items show 9:48 PM, so a minute mismatch doesn&#x27;t fit here,
+      but the sender string could differ between the two sources.
+
+  Likeliest remaining explanations
+  1. The &quot;Train ticket&quot; +₹2,000 was entered by hand, with nothing to match
+     against. Its details look SMS-derived, so I think this is less likely.
+  2. The live receiver and the sweep reported different sender strings for the
+     same text. I can&#x27;t confirm this without the database, and release builds
+     block that.
+
+  Suggested fix, whatever the cause
+  - When a bank text arrives, skip creating a review item if a saved or pending
+    item already has the same account, direction and amount within about 2
+    minutes.
+  - This changes decision D8, so I&#x27;d write the spec entries first: a UI-UX CR
+    and an implementation CR, plus the D8 change.
+  - I&#x27;d add tests for near-misses, such as a genuine second payment of the same
+    amount a few minutes later.
+
+  Should I write the spec entries and implement it? Until then, tap ✕ on that
+  review card rather than Save. I haven&#x27;t touched your phone this session, and
+  nothing is committed.
+
+✻ Worked for 53s · done Tuesday 10:40 PM</pre></details></section>
+<section class="turn" id="t131"><div class="n">Turn 131</div><div class="u">try checking the app and the code once again</div></section>
+<section class="turn" id="t132"><div class="n">Turn 132</div><div class="u">thoroughly</div><details><summary>Response</summary><pre>  Ran 2 shell commands (ctrl+o to expand)
+
+● CoinFlow is in front. I&#x27;ll take a screenshot.
+
+  Read 1 file, ran 3 shell commands (ctrl+o to expand)
+
+● I see the Review sheet for ₹2,000 open with an Add button, but I&#x27;ll hold off
+  pressing anything. Instead, I&#x27;ll check the code to see if saving from this
+  sheet marks the suggestion as confirmed. · summary
+
+  Searched for 3 patterns, read 2 files (ctrl+o to expand)
+
+● I found a likely cause in the code. I&#x27;ll fix it with a test and check the
+  change-log format for a CR.
+
+  Searched for 2 patterns, ran 1 shell command (ctrl+o to expand)
+
+● Now the fix: build the SMS reference at save time from the suggestion, not
+  from a ref that is lost when the sheet remounts.
+
+● Update(src\features\transactions\transaction-sheet.tsx)
+  ⎿  Added 10 lines, removed 1 line
+      478          savedTransactionId = current.sourceId;
+      479        } else {
+      480          // §30.6/§30.7 — Add/Confirm&#x27;s save toast; Edit&#x27;s own
+           spec (§30.8) doesn&#x27;t have one.
+      481 -        const { transactionId, linkedPeerId } = writeConfirmed
+          -Transaction(current, smsRefRef.current);
+      481 +        // The ref is lost when the sheet remounts mid-session
+          + (e.g. returning from the Category picker, which
+      482 +        // keeps the draft), so a Confirm re-reads the suggest
+          +ion — otherwise the saved row has no dedupeKey and
+      483 +        // the sweep re-queues the same SMS once the confirmed
+          + suggestion is purged (CR-43).
+      484 +        const confirmed = current.mode === &#x27;confirm&#x27; &amp;&amp; curren
+          +t.sourceId ? getSuggestion(current.sourceId) : null;
+      485 +        const smsRef: SmsRef =
+      486 +          smsRefRef.current ??
+      487 +          (confirmed
+      488 +            ? { sender: confirmed.smsSender, receivedAt: confi
+          +rmed.smsReceivedAt, dedupeKey: confirmed.dedupeKey }
+      489 +            : null);
+      490 +        const { transactionId, linkedPeerId } = writeConfirmed
+          +Transaction(current, smsRef);
+      491          savedTransactionId = transactionId;
+      492          if (linkedPeerId) {
+      493            // UI-106 — it matched a row on another of your acco
+           unts: it is a transfer now, not spending / income
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Need getSuggestion imported (it&#x27;s already used in the file) and a regression
+  test; look at the existing remount test.
+
+  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● Update(src\features\transactions\transaction-sheet.test.tsx)
+  ⎿  Added 16 lines
+      503      await second.unmount();
+      504    });
+      505
+      506 +  // CR-43 — the remount above drops the component&#x27;s SMS ref;
+          +the save must still carry the suggestion&#x27;s dedupeKey,
+      507 +  // or the sweep re-queues the same SMS once the confirmed su
+          +ggestion is purged.
+      508 +  it(&#x27;still saves with the SMS dedupeKey after a remount&#x27;, asy
+          +nc () =&gt; {
+      509 +    mockGetSuggestion.mockReturnValue(suggestion({ amountMinor
+          +: 45000, account: &#x27;Swiggy&#x27; }));
+      510 +    useSheetRegistry.setState({ params: { suggestionId: &#x27;sug-1
+          +&#x27; } });
+      511 +    const first = await render(&lt;TransactionSheetBody mode=&quot;con
+          +firm&quot; /&gt;);
+      512 +    await first.unmount();
+      513 +
+      514 +    const { getByText } = await render(&lt;TransactionSheetBody m
+          +ode=&quot;confirm&quot; /&gt;);
+      515 +    await fireEvent.press(getByText(&#x27;Add&#x27;));
+      516 +    expect(mockWriteConfirmedTransaction).toHaveBeenCalledWith
+          +(
+      517 +      expect.anything(),
+      518 +      expect.objectContaining({ dedupeKey: &#x27;dedupe-1&#x27; }),
+      519 +    );
+      520 +  });
+      521 +
+      522    // A remount for a genuinely *different* Suggestion (not the
+            sub-picker return-trip case above)
+      523    // must still re-seed — the guard shouldn&#x27;t over-fire and ge
+           t stuck showing stale data forever.
+      524    it(&#x27;still re-seeds on a remount for a different Suggestion&#x27;,
+            async () =&gt; {
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● Tests and typecheck pass. Now the spec change-log entry.
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● I found a likely cause and fixed it in code. It isn&#x27;t confirmed, because
+  release builds block reading the database. Nothing is committed, and the fix
+  isn&#x27;t on your phone yet.
+
+  What I found
+  - Sheet on the phone: the Review sheet for the +₹2,000 is open, with the
+    amount, Canara ··672, 26 Oct 9:48 PM and CHIMIRELA U. It&#x27;s on Add; I didn&#x27;t
+    press anything.
+  - Bug: when you review an SMS, the sheet holds the SMS&#x27;s fingerprint in a
+    React ref. Returning from the Category picker remounts the sheet but keeps
+    your edits, and the ref comes back empty.
+    - What got saved: the transaction was stored as a manual entry with no
+      fingerprint, while the review item was still marked as confirmed.
+    - Why it came back: after 24 hours the confirmed review item is purged, so
+      nothing carried the fingerprint any more. The app-open sweep rescans the
+      last 48 hours of your inbox and queued the same SMS again.
+    - Why it fits your case: &quot;Train ticket&quot; with category Pocket money looks
+      like a row where you changed the category, which goes through that picker.
+      The review item appeared after 24 hours.
+
+  Fix
+  - transaction-sheet.tsx: at save time, if the ref is empty, it re-reads the
+    SMS details from the review item.
+  - Test: I added &quot;still saves with the SMS dedupeKey after a remount&quot;. The
+    transactions test suites pass (95 tests), and typecheck and lint are clean.
+    I didn&#x27;t run the new test against the old code to confirm it fails there.
+  - Spec: implementation CR-43 in SPEC-implementation.md records the cause and
+    the fix. There&#x27;s no UI change.
+
+  What&#x27;s left
+  - Existing row: the saved Train ticket still has no fingerprint, and the fix
+    doesn&#x27;t repair rows like it. Dismiss the duplicate with ✕ in the Review
+    Queue, or tap Cancel on the open sheet. I&#x27;d rather you do it than me.
+  - Install: rebuild and install to get the fix on the phone, then I can check
+    &quot;Move to account&quot; and the totals.
+  - Other rows: other old transactions may have the same problem. They only
+    matter if the sweep re-queues them, and it only looks back 48 hours.
+
+✻ Worked for 3m 1s · done Tuesday 10:44 PM</pre></details></section>
+<section class="turn" id="t133"><div class="n">Turn 133</div><div class="u">exp[lain more simpl</div><details><summary>Response</summary><pre>● Here&#x27;s the short version.
+
+  What you saw: a transaction you already saved (+₹2,000 &quot;Train ticket&quot;) showed
+  up again in the Review Queue.
+
+  Why:
+  1. The bank SMS arrived, and you saved it from the review sheet. The app
+     should have stamped the saved transaction with an ID for that SMS, so it
+     can recognise the SMS later.
+  2. If you changed the category while reviewing, the sheet reloaded and forgot
+     the SMS&#x27;s ID. The transaction was saved without the stamp.
+  3. A day later the app deleted its temporary review item.
+  4. The app rescans your last 2 days of SMS every time you open it. It found
+     the same SMS, saw no saved transaction with that ID, and thought it was
+     new.
+
+  The fix: the sheet now looks up the SMS&#x27;s ID again when you save, so the stamp
+  is never lost.
+
+  What you need to do:
+  - Dismiss the duplicate with ✕ (don&#x27;t tap Add). The old Train ticket stays as
+    it is, and the fix only applies to transactions saved after it.
+  - Rebuild and install the app to get the fix.
+
+  I couldn&#x27;t prove this is the cause, because I can&#x27;t read the database on a
+  release build. It fits everything I saw.
+
+✻ Cooked for 6s · done Tuesday 10:45 PM</pre></details></section>
+<section class="turn" id="t134"><div class="n">Turn 134</div><div class="u">so now the changes have been made i should rebuild it right</div><details><summary>Response</summary><pre>● Yes, rebuild and install. This build has three things you haven&#x27;t tried on the
+  phone yet:
+  - The duplicate-review fix (CR-43).
+  - The Total balance that counts transactions with no account.
+  - The &quot;No account&quot; row in My accounts, with Move to account.
+
+  Before you rebuild, dismiss the duplicate with ✕ or tap Cancel on the open
+  sheet. Don&#x27;t tap Add, or the +₹2,000 gets counted twice.
+
+  After it&#x27;s installed, say &quot;check now&quot;. I&#x27;ll look at Home&#x27;s total, My accounts
+  and the No account row. I won&#x27;t press Move until you tell me to.
+
+✻ Cooked for 2s · done Tuesday 10:46 PM</pre></details></section>
+<section class="turn" id="t135"><div class="n">Turn 135</div><div class="u">built it can you install it in my phone</div><details><summary>Response</summary><pre>  Ran 1 shell command (ctrl+o to expand)
+
+● The new APK is ready, built at 22:53 after the fix, but I can&#x27;t install it
+  yet. adb devices shows no phone. The wireless connection has dropped again.
+
+  Please do one of these:
+  - Plug in the USB cable, or
+  - Open Developer options › Wireless debugging and check that it&#x27;s still on,
+    then tell me to try again. If the port has changed, send me the IP:port.
+
+  Once it&#x27;s connected I&#x27;ll install over the existing app with adb install -r, so
+  your data stays.
+
+✻ Crunched for 34s · done Tuesday 11:10 PM</pre></details></section>
+<section class="turn" id="t136"><div class="n">Turn 136</div><div class="u">chekc again</div><details><summary>Response</summary><pre>  Ran 2 shell commands (ctrl+o to expand)
+
+● The new build is installed on your phone. It went in as an update, so your
+  data is kept. I haven&#x27;t opened the app or touched the screen.
+
+  Say &quot;check now&quot; when you want me to look at it. I&#x27;ll first confirm CoinFlow is
+  in front, then check Home&#x27;s total, My accounts and the No account row. I
+  won&#x27;t press Move until you say so.
+
+✻ Crunched for 1m 23s · done Tuesday 11:15 PM</pre></details></section>
+<section class="turn" id="t137"><div class="n">Turn 137</div><div class="u">in settings i am unable to scroll the merchant rules page can you check that once</div><details><summary>Response</summary><pre>  Searched for 1 pattern, read 1 file (ctrl+o to expand)
+
+● The list is a plain View with no scrolling at all. I&#x27;ll copy how
+  categories.tsx handles it.
+
+  Searched for 1 pattern, ran 1 shell command (ctrl+o to expand)
+
+● View is still used for the list wrapper, so I need to keep that import.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● I found the bug and fixed it in code. I haven&#x27;t put it on your phone.
+
+  Cause: in src/app/account-rules.tsx, the Merchant rules list sat in a plain
+  View, not a scrolling view. Any rules past the bottom of the screen were cut
+  off and couldn&#x27;t be reached. It&#x27;s the same layout categories.tsx handles with
+  a ScrollView.
+
+  Fix: the list is now inside a ScrollView with some bottom padding, matching
+  Categories. Typecheck and lint are clean, and the account-rules tests pass
+  (20). I didn&#x27;t add a test for scrolling.
+
+  To see it on the phone: rebuild and install. This is a small layout fix, so I
+  haven&#x27;t written a spec entry for it. Say so if you want one.
+
+✻ Churned for 59s · done Tuesday 11:19 PM</pre></details></section>
+<section class="turn" id="t138"><div class="n">Turn 138</div><div class="u">built it check</div><details><summary>Response</summary><pre>  Ran 1 shell command (ctrl+o to expand)
+
+● I can&#x27;t check yet, because adb devices shows no phone. The wireless connection
+  has dropped again. The new APK (built 23:26) is ready.
+
+  Please plug in the USB cable, or make sure Wireless debugging is on and tell
+  me to try again.
+
+  Once it&#x27;s connected I&#x27;ll install the APK as an update, which keeps your data.
+  Then I&#x27;ll open Settings › Merchant rules and scroll it. I&#x27;ll confirm CoinFlow
+  is in front before each tap or swipe.
+
+✻ Brewed for 10s · done Tuesday 11:46 PM</pre></details></section>
+<section class="turn" id="t139"><div class="n">Turn 139</div><div class="u">check now</div><details><summary>Response</summary><pre>  Ran 2 shell commands (ctrl+o to expand)
+
+● Still no phone. Even after restarting adb, nothing is advertised on the
+  network. That points to the phone side:
+
+  - Wireless debugging has switched itself off. It does this after a Wi-Fi
+    change or a reboot.
+  - Or the phone and PC are on different Wi-Fi networks.
+
+  Plugging in the USB cable is the quickest fix. Otherwise, open Developer
+  options › Wireless debugging, turn it on, and send me the IP:port shown there.
+  I&#x27;ll run adb connect with it, install the APK and check Merchant rules.
+
+✻ Churned for 14s · done Tuesday 11:47 PM</pre></details></section>
+<section class="turn" id="t140"><div class="n">Turn 140</div><div class="u">check now</div><details><summary>Response</summary><pre>  Ran 2 shell commands (ctrl+o to expand)
+
+● The new build is installed. The phone is on the Recents screen, so I&#x27;m
+  launching CoinFlow and checking it&#x27;s in front before I touch anything.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● CoinFlow is in front, on Home. I&#x27;m opening Settings.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● Tap Merchant rules: displayed (280,1169) → original (328,1368).
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● The list is cut off at the bottom, so I&#x27;ll swipe up to test scrolling.
+
+  Read 1 file, ran 1 shell command (ctrl+o to expand)
+
+● The Merchant rules page now scrolls on your phone. I installed the new APK as
+  an update, so your data is kept. I opened Settings › Merchant rules and swiped
+  up once. The list moved from CHIMIRELA U at the top to rules further down,
+  such as Seetharama, TSRTC Online and MSR PHARMA.
+
+  I didn&#x27;t scroll to the very bottom. I didn&#x27;t check whether the last rule
+  clears the tab bar, or whether the page scrolls past the end.
+
+  Home shows Total balance ₹1,776.40 across 2 accounts + unassigned, as before.
+
+  I didn&#x27;t open Review Queue or My accounts. So these are still unchecked on the
+  phone:
+  - the duplicate-review fix (CR-43)
+  - the No account row and Move to account
+
+  The ₹2,000 review sheet was open earlier, and I don&#x27;t know if you cancelled
+  it. Tell me which to look at next.
+
+  Nothing is committed, including the CR-43 spec entry.
+✻ Churned for 1m 16s · done Tuesday 11:50 PM</pre></details></section>
+<section class="turn" id="t141"><div class="n">Turn 141</div><div class="u">make the latest apk and the latest changes public make a github release of the apk</div><details><summary>Response</summary><pre>  Ran 2 shell commands (ctrl+o to expand)
+
+● User answered Claude&#x27;s questions:
+  ⎿  · The APK on your phone is still version 2.1.0, versionCode 4, the same as
+     the published v2.1.0, so a new release needs a bump and a rebuild. Which
+     version should I use? → 2.2.0, versionCode 5 (Recommended)
+     · Publishing means committing about 68 changed files and pushing them to
+     the public master branch, plus a tag and a release. You normally do commits
+     yourself. Should I do the commit and push this time? → Yes, commit, push
+     and tag
+
+  Ran 3 shell commands (ctrl+o to expand)
+
+● Everything is green (126 suites, 1,594 tests). I&#x27;m checking what would go
+  public before committing.
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● transcript.md at the repo root is a session log, so I&#x27;m leaving it out of the
+  commit. The rest goes in.
+
+  Pushed to master, ran 1 shell command (ctrl+o to expand)
+
+● The release commit is on GitHub (public master, 24254d8). I haven&#x27;t created
+  the tag or the release yet, because they need a 2.2.0 APK and the one on your
+  phone is still 2.1.0.
+
+  - Committed and pushed: 53 files in one commit, &quot;Release 2.2.0&quot;, with version
+    2.2.0 and versionCode 5. Before that, typecheck and lint were clean and all
+    126 test suites (1,594 tests) passed.
+  - Left out: transcript.md in the repo root. It&#x27;s a session log and I didn&#x27;t
+    want it public, so it&#x27;s still untracked.
+
+  Your step: rebuild the release APK now, so it picks up the version bump. The
+  build I installed earlier was made before it. Tell me when it&#x27;s done.
+
+  Then I&#x27;ll:
+  1. Check the APK reports 2.2.0 / versionCode 5.
+  2. Create the v2.2.0 tag and a GitHub release.
+  3. Attach the APK as coinflow.apk, named like the v2.1.0 release, with release
+     notes and a changelog link.
+
+✻ Cogitated for 2m 44s · done Tuesday 11:53 PM</pre></details></section>
+<section class="turn" id="t142"><div class="n">Turn 142</div><div class="u">wt do i do now?</div><details><summary>Response</summary><pre>● Rebuild the release APK the same way you did before. Build it now, because the
+  earlier one was made before the version bump.
+
+  When it finishes, reply &quot;built&quot;. I&#x27;ll check that the APK says 2.2.0, then
+  create the v2.2.0 tag and the GitHub release with the APK attached.
+
+✻ Brewed for 1s · done Tuesday 11:54 PM</pre></details></section>
+<section class="turn" id="t143"><div class="n">Turn 143</div><div class="u">done</div><details><summary>Response</summary><pre>  Ran 1 shell command (ctrl+o to expand)
+
+● The built APK still shows the old version 2.1.0/4 since the generated android/
+  folder didn&#x27;t pick up the app.json bump. I&#x27;ll update build.gradle directly to
+  match. · summary
+
+  Ran 1 shell command (ctrl+o to expand)
+
+● The first build didn&#x27;t pick up the new version, so please build the release
+  APK once more. I changed android/app/build.gradle (generated, git-ignored) to
+  versionCode 5 and versionName 2.2.0, which matches app.json.
+
+  Reply &quot;built&quot; and I&#x27;ll check the version, then create the tag and the release.
+
+✻ Churned for 11s · done Tuesday 11:58 PM</pre></details></section>
+<section class="turn" id="t144"><div class="n">Turn 144</div><div class="u">check now</div><details><summary>Response</summary><pre>  Ran 1 shell command (ctrl+o to expand)
+
+● The APK now reports 2.2.0 / versionCode 5. I&#x27;m creating the tag and release.
+
+  Ran 2 shell commands (ctrl+o to expand)
+
+● CoinFlow v2.2.0 is now a public release, with the APK attached as coinflow.apk
+  (45.2 MB): https://github.com/CKarthikeshwar/coinflow/releases/tag/v2.2.0
+
+  - The APK: I checked that it reports version 2.2.0 and versionCode 5. It&#x27;s the
+    build from just after midnight, and it contains the fixes in this release.
+    I checked the version number and that the upload is the same size as the
+    file. I didn&#x27;t install it or run it again.
+  - The tag: v2.2.0 points at the pushed commit 24254d8, which is the latest
+    master.
+  - The notes: they cover the Analytics redesign, the income and expense day
+    headers, the complete Total balance with Move to account, the
+    duplicate-review fix and the Merchant rules scroll fix. They also link the
+    full changelog from v2.1.0.
+  - Not published: transcript.md is still untracked and local.
+
+  The android/app/build.gradle edit I made for the version is git-ignored, so a
+  fresh prebuild would take the version from app.json.
+
+  The duplicate-review fix and the No account / Move to account flow are still
+  not checked on the phone. I can do that if you install this build.
+
+✻ Crunched for 47s · done 12:07 AM</pre></details></section></main><script>
 const d=[...document.querySelectorAll('details')];let open=false;
 document.getElementById('t').onclick=e=>{open=!open;d.forEach(x=>x.open=open);e.target.textContent=open?'Collapse all':'Expand all'};
 if(location.hash){const el=document.querySelector(location.hash);if(el)el.scrollIntoView()}

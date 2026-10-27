@@ -22,8 +22,10 @@ const projects = [
   },
   {
     title: 'Proof Verifier',
+    href: 'https://proof-verifier-one.vercel.app/',
+    external: true,
     description:
-      'A web app where a maths student writes a discrete-maths proof by hand, one step per line, and a real proof checker marks it. Each finished line is read from the handwriting, translated into Lean 4, and checked by Lean with Mathlib; the student then gets a plain-English note on what is verified, what is still missing and what is wrong, so the feedback comes from Lean accepting or rejecting steps and not from a chatbot\'s opinion. Edit an earlier line and the steps below it are checked again. Built on an Excalidraw canvas with a React and TypeScript front end, FastAPI services for reading, translation and Lean, and a chain of language models (Leanstral, Gemini, Groq) with lemma retrieval from Mathlib.',
+      'A web app where a maths student writes a discrete-maths proof by hand, one step per line, and Lean checks it. Each line is read from the handwriting, translated into Lean 4 and checked with Mathlib, so the feedback comes from Lean accepting or rejecting steps, not a chatbot\'s opinion. Built with React, TypeScript and FastAPI on an Excalidraw canvas.',
   },
   {
     title: 'Adversarial Robustness: Transferability Analysis and Diffusion-Augmented Adversarial Training',
